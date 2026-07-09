@@ -663,7 +663,14 @@
                     <div class="player-card__img" style="background:${player.color};color:${this.getContrastColor(player.color)}" aria-hidden="true">${player.number}</div>
                     <div class="player-card__info">
                         <span class="player-card__name">${player.name}</span>
-                        <span class="player-card__meta">${player.teamName}</span>
+                        <div class="player-card__meta-wrapper">
+                            <span class="player-card__meta">${player.teamName}</span>
+                            ${player.flag ? `
+                            <span class="player-card__flag" aria-hidden="true">
+                                <img src="${player.flag}" alt="" loading="lazy">
+                            </span>
+                            ` : ''}
+                        </div>
                     </div>
                     ${isBenched ? '<span class="player-card__badge player-card__badge--bench" aria-hidden="true">Suplente</span>' : ''}
                     ${isCurrent ? '<span class="player-card__badge player-card__badge--current" aria-hidden="true">Actual</span>' : ''}
