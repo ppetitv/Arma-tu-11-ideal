@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arma tu 11 Ideal | Mundial 2026</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        @property --angle {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
+        }
+
+        :root {
+            --color-bg: #0F1115; --color-surface: #FFFFFF; --color-surface-2: #F7F8FA;
+            --color-text-primary: #0F1115; --color-text-secondary: #4B5563;
+            --color-text-muted: #9CA3AF;
+            --color-border: #E5E7EB; --color-accent: #0F1115;
+            --color-pitch: #1A4D2E; --color-pitch-light: #2D6A4F; --color-gold: #D4AF37;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 24px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow-md: 0 8px 24px -4px rgba(0,0,0,0.08);
+            --shadow-lg: 0 24px 48px -12px rgba(0,0,0,0.15); --shadow-sheet: 0 -10px 40px rgba(0,0,0,0.2);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1); --transition-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 500ms cubic-bezier(0.32, 0.72, 0, 1);
+            --font-ui: 'Sora', sans-serif; --font-serif: 'Instrument Serif', serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-ui); background-color: var(--color-bg); color: var(--color-text-primary); min-height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+        .app-container { width: 100%; height: 100vh; display: flex; flex-direction: column; background: #0F1115; }
+        
+        /* Restauración del contenedor flotante en Desktop */
+        @media (min-width: 1024px) {
+            .app-container { 
+                flex-direction: row; 
+                padding: 2rem; 
+                gap: 2rem; 
+                justify-content: center; 
+                align-items: stretch; 
+            }
+        }
+
+        .pitch-section { 
+            position: relative; background: var(--color-pitch); 
+            background-image: radial-gradient(circle at 50% 50%, var(--color-pitch-light) 0%, var(--color-pitch) 70%); 
+            width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-around; align-items: center; padding: 2rem; overflow: hidden; 
+            transition: transform 400ms var(--transition-spring), box-shadow 1s ease;
+            border: 2px solid transparent; 
+            background-clip: padding-box;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        @media (min-width: 1024px) {
+            .pitch-section {
+                height: auto; 
+                max-width: 1100px;
+                border-radius: 24px;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            }
+        }
+
+        @media (max-width: 1023px) {
+            body.sheet-open .pitch-section { transform: scale(0.98); }
+        }
+
+        .pitch-section.complete {
+            background-image: 
+                radial-gradient(circle at 50% 50%, var(--color-pitch-light) 0%, var(--color-pitch) 70%),
+                conic-gradient(from var(--angle), transparent 0%, #FFD700 20%, transparent 40%, transparent 100%);
+            background-origin: border-box; 
+            background-clip: padding-box, border-box;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.3), 0 20px 50px rgba(0,0,0,0.5);
+            animation: rotate-border 4s linear infinite;
+        }
+        @keyframes rotate-border { to { --angle: 360deg; } }
+
+        .pitch-lines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 2; }
+        .pitch-lines::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255,255,255,0.1); }
+        .pitch-lines::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; }
+        .penalty-box { position: absolute; left: 50%; transform: translateX(-50%); width: 60%; height: 80px; border: 2px solid rgba(255,255,255,0.1); }
+        .penalty-box.top { top: 0; border-top: none; } .penalty-box.bottom { bottom: 0; border-bottom: none; }
+
+        .pitch-header { position: absolute; top: 2rem; left: 2rem; color: rgba(255,255,255,0.8); z-index: 4; }
+        .pitch-header h2 { font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.7; }
+        .pitch-header p { font-family: var(--font-serif); font-size: 2.5rem; line-height: 1; margin-top: 0.5rem; font-style: italic; }
+
+        .status-pill { position: absolute; top: 2rem; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.5rem 1.2rem; border-radius: 100px; color: rgba(255, 255, 255, 0.9); font-size: 0.8rem; font-weight: 600; z-index: 20; transition: all var(--transition-medium); display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+        .status-pill__dot { width: 6px; height: 6px; background: rgba(255,255,255,0.6); border-radius: 50%; transition: all var(--transition-fast); }
+        .pitch-section.complete .status-pill { background: rgba(212, 175, 55, 0.15); border-color: rgba(212, 175, 55, 0.5); color: #FFD700; }
+        .pitch-section.complete .status-pill__dot { background: #FFD700; box-shadow: 0 0 8px #FFD700; }
+
+        .celebration-text { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-serif); font-size: 5.5rem; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 40px rgba(212, 175, 55, 0.9), 0 0 60px rgba(212, 175, 55, 0.7), 0 4px 15px rgba(0,0,0,0.9); opacity: 0; pointer-events: none; z-index: 30; white-space: nowrap; font-style: italic; font-weight: 400; letter-spacing: -0.02em; }
+        .pitch-section.celebrate .celebration-text { animation: celebrate 2.5s ease-out forwards; }
+        @keyframes celebrate { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -70%) scale(1.05); } }
+
+        .formation-grid { position: relative; z-index: 3; display: flex; flex-direction: column; width: 100%; max-width: 600px; height: 75vh; justify-content: space-around; gap: 1rem; }
+        .formation-row { display: flex; justify-content: space-around; align-items: flex-end; transition: all var(--transition-spring); }
+        .player-slot { width: 90px; min-height: 90px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all var(--transition-medium); position: relative; animation: slotPop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+        @keyframes slotPop { 0% { transform: scale(0) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        .player-slot.empty { height: 90px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.25); background: rgba(0,0,0,0.05); justify-content: center; gap: 0.2rem; }
+        .player-slot.empty:hover { border-color: var(--color-gold); background: rgba(255,255,255,0.05); transform: scale(1.05); }
+        .player-slot.empty:active { transform: scale(0.95); }
+        .player-slot.empty:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 4px; }
+        .player-slot.empty.is-selecting { border-color: var(--color-gold); background: rgba(212, 175, 55, 0.1); box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+        
+        .player-slot.empty.hint { animation: slotPop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both, pulseHint 1.5s infinite 1s; }
+        @keyframes pulseHint { 0% { border-color: rgba(255,255,255,0.25); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } 50% { border-color: var(--color-gold); box-shadow: 0 0 15px 2px rgba(212, 175, 55, 0.4); } 100% { border-color: rgba(255,255,255,0.25); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+
+        .player-slot__icon { font-size: 1.2rem; font-weight: 300; color: rgba(255,255,255,0.4); }
+        .player-slot.empty:hover .player-slot__icon { color: var(--color-gold); }
+        .player-slot__pos { font-size: 0.65rem; text-transform: uppercase; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
+        .player-slot.filled { background: transparent; border: none; gap: 0.4rem; }
+        .player-slot.filled:hover { transform: translateY(-4px); }
+        .filled-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid var(--color-surface); box-shadow: 0 8px 16px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem; transition: all var(--transition-spring); position: relative; }
+        .player-slot.filled:hover .filled-avatar { border-color: var(--color-gold); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
+        .pitch-section.complete .filled-avatar { border-color: var(--color-gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+        .filled-info { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; text-align: center; }
+        .filled-info__main { display: flex; align-items: center; gap: 0.3rem; }
+        .filled-info__flag { width: 14px; height: 10px; border-radius: 2px; background-size: cover !important; box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
+        .filled-info__name { color: #FFFFFF; font-size: 0.75rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.6); max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
+        .filled-info__pos { font-size: 0.55rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+
+        .completion-actions { position: absolute; bottom: 5.5rem; left: 50%; transform: translateX(-50%) translateY(30px); background: rgba(15, 17, 21, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 0.5rem; display: flex; gap: 0.5rem; z-index: 25; opacity: 0; pointer-events: none; transition: all 500ms var(--transition-spring); box-shadow: 0 10px 40px rgba(0,0,0,0.5); align-items: center; }
+        .pitch-section.complete .completion-actions { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+        .action-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1rem; border-radius: 12px; border: none; font-family: var(--font-ui); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 200ms ease; color: rgba(255,255,255,0.9); background: transparent; -webkit-tap-highlight-color: transparent; }
+        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .action-btn:focus-visible { outline: 2px solid #FFD700; outline-offset: 2px; }
+        .action-btn.primary { background: var(--color-gold); color: #1A4D2E; }
+        .action-btn.primary:hover { background: #E5C158; transform: scale(1.02); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5); }
+        .action-btn.danger:hover { color: #FF4D4D; background: rgba(255, 77, 77, 0.1); }
+        .action-btn svg { width: 18px; height: 18px; }
+        .action-btn .label { display: none; }
+        @media (min-width: 1024px) { 
+            .completion-actions { display: none; } 
+        }
+
+        .formation-selector { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 100px; padding: 0.4rem; display: flex; gap: 0.25rem; z-index: 20; box-shadow: 0 8px 32px rgba(0,0,0,0.2); transition: opacity 300ms ease; }
+        .pitch-section.complete .formation-selector { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(20px); }
+        .formation-btn { background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 0.5rem 1rem; border-radius: 100px; font-family: var(--font-ui); font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all var(--transition-medium); }
+        .formation-btn:hover { color: var(--color-surface); }
+        .formation-btn:focus-visible { outline: 2px solid #FFD700; outline-offset: 2px; }
+        .formation-btn.active { background: var(--color-surface); color: var(--color-pitch); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+        .backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 300ms ease; }
+        .backdrop.show { opacity: 1; pointer-events: auto; }
+        
+        .selector-panel { 
+            background: var(--color-surface); 
+            z-index: 50; 
+            display: flex; flex-direction: column; 
+            overflow: hidden;
+            position: fixed; bottom: 0; left: 0; width: 100%; max-height: 85vh; 
+            border-radius: 24px 24px 0 0; 
+            transform: translateY(100%); 
+            transition: transform 450ms var(--transition-spring); 
+            box-shadow: var(--shadow-sheet); 
+        }
+        .selector-panel.open { transform: translateY(0); }
+        
+        @media (min-width: 1024px) {
+            .selector-panel { 
+                position: relative; 
+                width: 420px; 
+                height: auto; 
+                max-height: none; 
+                border-radius: 24px; 
+                transform: none; 
+                transition: none; 
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+                border-left: none; 
+                flex-shrink: 0;
+                overflow: hidden;
+            }
+            .selector-panel .sheet-handle { display: none; }
+        }
+
+        .sheet-handle { width: 40px; height: 4px; background: var(--color-border); border-radius: 100px; margin: 0.75rem auto 0; flex-shrink: 0; }
+        .sheet-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .sheet-title { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text-primary); }
+        .sheet-subtitle { font-size: 0.75rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .sheet-close { background: var(--color-surface-2); border: 1px solid var(--color-border); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-text-primary); transition: all var(--transition-fast); }
+        .sheet-close:hover { background: var(--color-border); }
+        .sheet-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        @media (min-width: 1024px) { .sheet-close { display: none; } }
+
+        .panel-body { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        
+        .picker-view { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        .sheet-search { padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); }
+        .search-input { width: 100%; padding: 0.85rem 1.2rem; border-radius: 100px; border: 1px solid var(--color-border); background: var(--color-surface-2); font-family: var(--font-ui); font-size: 0.95rem; color: var(--color-text-primary); outline: none; transition: all var(--transition-fast); }
+        .search-input::placeholder { color: var(--color-text-muted); }
+        .search-input:focus { border-color: var(--color-accent); background: var(--color-surface); box-shadow: 0 0 0 3px rgba(15, 17, 21, 0.05); }
+
+        .sheet-team-tabs-wrapper { position: relative; border-bottom: 1px solid var(--color-border); overflow: hidden; background: var(--color-surface); padding: 1rem 0; }
+        .sheet-team-tabs-wrapper::before, .sheet-team-tabs-wrapper::after { content: ''; position: absolute; top: 0; bottom: 0; width: 24px; z-index: 2; pointer-events: none; }
+        .sheet-team-tabs-wrapper::before { left: 0; background: linear-gradient(to right, var(--color-surface), transparent); }
+        .sheet-team-tabs-wrapper::after { right: 0; background: linear-gradient(to left, var(--color-surface), transparent); }
+
+        .sheet-team-tabs { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0 1.5rem; scrollbar-width: none; scroll-behavior: smooth; scroll-snap-type: x proximity; position: relative; z-index: 2; }
+        .sheet-team-tabs::-webkit-scrollbar { display: none; }
+        .sheet-team-tab { flex-shrink: 0; padding: 0.65rem 1.2rem; border: 1px solid transparent; background: var(--color-surface-2); border-radius: 100px; font-family: var(--font-ui); font-weight: 600; font-size: 0.85rem; color: var(--color-text-secondary); cursor: pointer; transition: all 200ms ease; display: flex; align-items: center; gap: 0.5rem; scroll-snap-align: start; -webkit-tap-highlight-color: transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .sheet-team-tab:hover { background: #F3F4F6; color: var(--color-text-primary); }
+        .sheet-team-tab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .sheet-team-tab.active { background: var(--color-accent); color: #FFFFFF; border-color: var(--color-accent); box-shadow: 0 4px 12px rgba(15, 17, 21, 0.15); }
+        .sheet-team-flag { width: 16px; height: 12px; border-radius: 2px; background-size: cover !important; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+
+        .sheet-content { padding: 1rem 1.5rem; overflow-y: auto; flex: 1; }
+        .sheet-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .player-card { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); cursor: pointer; transition: all var(--transition-fast); position: relative; background: var(--color-surface); }
+        .player-card:hover { border-color: var(--color-accent); transform: translateX(4px); box-shadow: var(--shadow-sm); }
+        .player-card:active { transform: scale(0.98); }
+        .player-card.selected { opacity: 0.4; pointer-events: none; background: var(--color-surface-2); }
+        .player-card.benched { background: #FFF8E1; border-color: #FFE082; }
+        .player-card:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .player-card__img { width: 40px; height: 40px; border-radius: 50%; margin-right: 1rem; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--color-surface); flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .player-card__info { flex: 1; display: flex; flex-direction: column; }
+        .player-card__name { font-weight: 600; font-size: 0.9rem; line-height: 1.2; color: var(--color-text-primary); }
+        .player-card__meta { font-size: 0.7rem; color: var(--color-text-secondary); margin-top: 0.15rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        
+        .remove-btn { width: 100%; padding: 0.85rem; border: 1px solid #DC2626; background: transparent; color: #DC2626; border-radius: var(--radius-md); font-weight: 600; font-size: 0.85rem; cursor: pointer; margin-bottom: 1rem; transition: all var(--transition-fast); }
+        .remove-btn:hover { background: rgba(220, 38, 38, 0.05); }
+        .remove-btn:focus-visible { outline: 2px solid #DC2626; outline-offset: 2px; }
+
+        .summary-view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+        .summary-view.active { display: flex; }
+        .picker-view.hidden { display: none; }
+
+        .summary-group { margin-bottom: 1.5rem; }
+        .summary-group h3 { font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.75rem; padding-left: 0.5rem; font-family: var(--font-serif); font-style: italic; text-transform: none; letter-spacing: 0; }
+        .summary-item { display: flex; align-items: center; padding: 0.6rem 0.5rem; border-radius: var(--radius-md); background: var(--color-surface-2); margin-bottom: 0.5rem; border-left: 3px solid transparent; transition: all 200ms ease; }
+        .summary-item:hover { background: var(--color-surface); border-left-color: var(--color-gold); }
+        .summary-item__number { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.8rem; margin-right: 0.75rem; font-family: var(--font-serif); font-style: italic; }
+        .summary-item__info { flex: 1; display: flex; flex-direction: column; }
+        .summary-item__name { font-weight: 600; font-size: 0.95rem; line-height: 1.2; color: var(--color-text-primary); }
+        .summary-item__team { font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.1rem; font-weight: 400; }
+        .summary-item__flag { width: 16px; height: 12px; border-radius: 2px; background-size: cover !important; margin-left: 0.5rem; }
+
+        .action-buttons { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--color-border); flex-shrink: 0; background: var(--color-surface); }
+        .btn { padding: 0.85rem 1.5rem; border-radius: 100px; font-family: var(--font-ui); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid transparent; }
+        .btn svg { width: 16px; height: 16px; }
+        .btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .btn-primary { background: var(--color-accent); color: var(--color-surface); box-shadow: var(--shadow-md); }
+        .btn-primary:hover { background: #2D2D2D; transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .btn-row { display: flex; gap: 0.75rem; }
+        .btn-secondary { flex: 1; background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border); }
+        .btn-secondary:hover { border-color: var(--color-accent); background: var(--color-surface-2); }
+        .btn-ghost { flex: 1; background: transparent; color: var(--color-text-secondary); border-color: transparent; }
+        .btn-ghost:hover { color: #DC2626; background: rgba(220, 38, 38, 0.05); }
+
+        .toast { position: fixed; bottom: 2rem; left: 1.5rem; right: 1.5rem; background: var(--color-text-primary); color: var(--color-surface); padding: 0.8rem 1.2rem; border-radius: 12px; box-shadow: var(--shadow-lg); font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; justify-content: space-between; gap: 1rem; opacity: 0; transform: translateY(100px); transition: all var(--transition-spring); z-index: 100; max-width: 400px; margin: 0 auto; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast__content { display: flex; align-items: center; gap: 0.75rem; }
+        .toast__dot { width: 8px; height: 8px; background: var(--color-gold); border-radius: 50%; flex-shrink: 0; }
+        .toast__undo { background: transparent; border: none; color: #FFD700; font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 0; text-transform: uppercase; letter-spacing: 0.05em; -webkit-tap-highlight-color: transparent; }
+        .toast__undo:focus-visible { outline: 2px solid #FFD700; outline-offset: 2px; }
+
+        @media (max-width: 768px) {
+            .pitch-header h2 { font-size: 0.75rem; }
+            .pitch-header p { font-size: 1.5rem; }
+            .formation-grid { height: 65vh; gap: 0.5rem; }
+            .player-slot { width: 70px; min-height: 70px; }
+            .player-slot.empty { height: 70px; }
+            .filled-avatar { width: 44px; height: 44px; font-size: 0.9rem; }
+            .filled-info__name { font-size: 0.65rem; max-width: 70px; }
+            .celebration-text { font-size: 3rem; } 
+            .toast { bottom: 1rem; }
+            .completion-actions { bottom: 5rem; padding: 0.3rem; border-radius: 100px; }
+            .action-btn { padding: 0.5rem 1rem; font-size: 0.75rem; border-radius: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <section class="pitch-section" id="pitchSection" role="group" aria-label="Campo de fútbol para construir tu once ideal">
+            <div class="pitch-lines" aria-hidden="true">
+                <div class="penalty-box top"></div>
+                <div class="penalty-box bottom"></div>
+            </div>
+            <div class="pitch-header">
+                <h2>Mundial 2026</h2>
+                <p>Tu 11 Ideal</p>
+            </div>
+            <div class="status-pill" id="statusPill" role="status" aria-live="polite">
+                <span class="status-pill__dot" aria-hidden="true"></span>
+                <span id="statusText">¡Arma tu 11 Ideal!</span>
+            </div>
+            <div class="celebration-text" aria-hidden="true">¡Tu 11 Ideal Completado!</div>
+            <div class="formation-grid" id="formationGrid" role="group" aria-label="Alineación de jugadores"></div>
+            
+            <div class="completion-actions" id="completionActions" role="toolbar" aria-label="Acciones finales">
+                <button class="action-btn primary" id="floatSaveBtn" aria-label="Guardar imagen de tu equipo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span class="label">Guardar</span>
+                </button>
+                <button class="action-btn" id="floatShareBtn" aria-label="Compartir enlace de tu equipo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                </button>
+                <button class="action-btn danger" id="floatResetBtn" aria-label="Reiniciar y empezar de cero">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                </button>
+            </div>
+
+            <div class="formation-selector" id="formationSelector" role="tablist" aria-label="Selector de formación táctica">
+                <button class="formation-btn active" data-formation="4-3-3" role="tab" aria-selected="true" aria-label="Formación 4-3-3">4-3-3</button>
+                <button class="formation-btn" data-formation="4-4-2" role="tab" aria-selected="false" aria-label="Formación 4-4-2">4-4-2</button>
+                <button class="formation-btn" data-formation="3-5-2" role="tab" aria-selected="false" aria-label="Formación 3-5-2">3-5-2</button>
+                <button class="formation-btn" data-formation="3-4-3" role="tab" aria-selected="false" aria-label="Formación 3-4-3">3-4-3</button>
+            </div>
+        </section>
+
+        <aside class="selector-panel" id="selectorPanel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-header">
+                <div>
+                    <div class="sheet-title" id="sheetTitle">Seleccionar Jugador</div>
+                    <div class="sheet-subtitle" id="sheetSubtitle">Elige de la lista</div>
+                </div>
+                <button class="sheet-close" id="sheetClose" aria-label="Cerrar panel de selección">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <div class="panel-body">
+                <div class="picker-view" id="pickerView">
+                    <div class="sheet-search">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Buscar jugador o selección..." aria-label="Buscar jugador o selección">
+                    </div>
+
+                    <div class="sheet-team-tabs-wrapper" id="tabsWrapper">
+                        <div class="sheet-team-tabs" id="sheetTeamTabs" role="tablist" aria-label="Selecciones nacionales"></div>
+                    </div>
+
+                    <div class="sheet-content" id="sheetContent" role="region" aria-live="polite" aria-label="Lista de jugadores disponibles"></div>
+                </div>
+
+                <div class="summary-view" id="summaryView">
+                    <div class="sheet-content" id="summaryContent" role="region" aria-label="Resumen de tu once ideal"></div>
+                    <div class="action-buttons" id="summaryActions" role="toolbar" aria-label="Acciones sobre tu equipo"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+        <div class="toast__content">
+            <span class="toast__dot" aria-hidden="true"></span>
+            <span id="toastText">Jugador añadido al XI</span>
+        </div>
+        <button class="toast__undo" id="toastUndo" style="display: none;" aria-label="Deshacer última acción">Deshacer</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        (function() {
+            const teamsData = {
+                "Argentina": { flag: "linear-gradient(0deg, #75AADB 33%, #FFFFFF 33%, #FFFFFF 66%, #75AADB 66%)", players: [
+                    { id: "ar_1", name: "E. Martínez", pos: "GK", number: 23, color: "#75AADB" }, { id: "ar_2", name: "N. Molina", pos: "DEF", number: 4, color: "#75AADB" }, { id: "ar_3", name: "C. Romero", pos: "DEF", number: 13, color: "#75AADB" }, { id: "ar_4", name: "L. Martínez", pos: "DEF", number: 6, color: "#75AADB" }, { id: "ar_5", name: "N. Tagliafico", pos: "DEF", number: 3, color: "#75AADB" }, { id: "ar_6", name: "R. De Paul", pos: "MID", number: 7, color: "#75AADB" }, { id: "ar_7", name: "E. Fernández", pos: "MID", number: 24, color: "#75AADB" }, { id: "ar_8", name: "A. Mac Allister", pos: "MID", number: 20, color: "#75AADB" }, { id: "ar_9", name: "L. Messi", pos: "FWD", number: 10, color: "#75AADB" }, { id: "ar_10", name: "J. Álvarez", pos: "FWD", number: 9, color: "#75AADB" }, { id: "ar_11", name: "Á. Di María", pos: "FWD", number: 11, color: "#75AADB" }
+                ]},
+                "Brasil": { flag: "linear-gradient(45deg, #009C3B 50%, #FFDF00 50%)", players: [
+                    { id: "br_1", name: "Alisson", pos: "GK", number: 1, color: "#009C3B" }, { id: "br_2", name: "Danilo", pos: "DEF", number: 2, color: "#009C3B" }, { id: "br_3", name: "Marquinhos", pos: "DEF", number: 4, color: "#009C3B" }, { id: "br_4", name: "Éder Militão", pos: "DEF", number: 3, color: "#009C3B" }, { id: "br_5", name: "G. Arana", pos: "DEF", number: 6, color: "#009C3B" }, { id: "br_6", name: "Casemiro", pos: "MID", number: 5, color: "#009C3B" }, { id: "br_7", name: "B. Guimarães", pos: "MID", number: 8, color: "#009C3B" }, { id: "br_8", name: "L. Paquetá", pos: "MID", number: 7, color: "#009C3B" }, { id: "br_9", name: "Vinícius Jr", pos: "FWD", number: 11, color: "#009C3B" }, { id: "br_10", name: "Rodrygo", pos: "FWD", number: 10, color: "#009C3B" }, { id: "br_11", name: "Raphinha", pos: "FWD", number: 19, color: "#009C3B" }
+                ]},
+                "Francia": { flag: "linear-gradient(90deg, #0055A4 33%, #FFFFFF 33%, #FFFFFF 66%, #EF4135 66%)", players: [
+                    { id: "fr_1", name: "Maignan", pos: "GK", number: 16, color: "#0055A4" }, { id: "fr_2", name: "J. Koundé", pos: "DEF", number: 5, color: "#0055A4" }, { id: "fr_3", name: "D. Upamecano", pos: "DEF", number: 4, color: "#0055A4" }, { id: "fr_4", name: "I. Konaté", pos: "DEF", number: 17, color: "#0055A4" }, { id: "fr_5", name: "T. Hernández", pos: "DEF", number: 22, color: "#0055A4" }, { id: "fr_6", name: "A. Tchouaméni", pos: "MID", number: 8, color: "#0055A4" }, { id: "fr_7", name: "E. Camavinga", pos: "MID", number: 6, color: "#0055A4" }, { id: "fr_8", name: "A. Griezmann", pos: "MID", number: 7, color: "#0055A4" }, { id: "fr_9", name: "K. Mbappé", pos: "FWD", number: 10, color: "#0055A4" }, { id: "fr_10", name: "O. Dembélé", pos: "FWD", number: 11, color: "#0055A4" }, { id: "fr_11", name: "M. Thuram", pos: "FWD", number: 9, color: "#0055A4" }
+                ]},
+                "España": { flag: "linear-gradient(0deg, #AA151B 25%, #F1BF00 25%, #F1BF00 75%, #AA151B 75%)", players: [
+                    { id: "es_1", name: "Unai Simón", pos: "GK", number: 23, color: "#AA151B" }, { id: "es_2", name: "Dani Carvajal", pos: "DEF", number: 2, color: "#AA151B" }, { id: "es_3", name: "A. Laporte", pos: "DEF", number: 14, color: "#AA151B" }, { id: "es_4", name: "R. Le Normand", pos: "DEF", number: 3, color: "#AA151B" }, { id: "es_5", name: "M. Cucurella", pos: "DEF", number: 24, color: "#AA151B" }, { id: "es_6", name: "Rodri", pos: "MID", number: 16, color: "#AA151B" }, { id: "es_7", name: "Pedri", pos: "MID", number: 20, color: "#AA151B" }, { id: "es_8", name: "Gavi", pos: "MID", number: 9, color: "#AA151B" }, { id: "es_9", name: "Lamine Yamal", pos: "FWD", number: 19, color: "#AA151B" }, { id: "es_10", name: "Á. Morata", pos: "FWD", number: 7, color: "#AA151B" }, { id: "es_11", name: "Nico Williams", pos: "FWD", number: 17, color: "#AA151B" }
+                ]},
+                "Inglaterra": { flag: "linear-gradient(45deg, #FFFFFF 70%, #CE1124 70%)", players: [
+                    { id: "en_1", name: "J. Pickford", pos: "GK", number: 1, color: "#CE1124" }, { id: "en_2", name: "K. Walker", pos: "DEF", number: 2, color: "#CE1124" }, { id: "en_3", name: "J. Stones", pos: "DEF", number: 5, color: "#CE1124" }, { id: "en_4", name: "M. Guéhi", pos: "DEF", number: 6, color: "#CE1124" }, { id: "en_5", name: "B. Chilwell", pos: "DEF", number: 3, color: "#CE1124" }, { id: "en_6", name: "D. Rice", pos: "MID", number: 4, color: "#CE1124" }, { id: "en_7", name: "J. Bellingham", pos: "MID", number: 10, color: "#CE1124" }, { id: "en_8", name: "P. Foden", pos: "MID", number: 11, color: "#CE1124" }, { id: "en_9", name: "H. Kane", pos: "FWD", number: 9, color: "#CE1124" }, { id: "en_10", name: "B. Saka", pos: "FWD", number: 17, color: "#CE1124" }, { id: "en_11", name: "M. Rashford", pos: "FWD", number: 19, color: "#CE1124" }
+                ]},
+                "Portugal": { flag: "linear-gradient(0deg, #006600 40%, #FF0000 40%)", players: [
+                    { id: "pt_1", name: "Rui Patrício", pos: "GK", number: 1, color: "#006600" }, { id: "pt_2", name: "J. Cancelo", pos: "DEF", number: 20, color: "#006600" }, { id: "pt_3", name: "Rúben Dias", pos: "DEF", number: 4, color: "#006600" }, { id: "pt_4", name: "A. Silva", pos: "DEF", number: 3, color: "#006600" }, { id: "pt_5", name: "N. Mendes", pos: "DEF", number: 5, color: "#006600" }, { id: "pt_6", name: "B. Fernandes", pos: "MID", number: 8, color: "#006600" }, { id: "pt_7", name: "Vitinha", pos: "MID", number: 23, color: "#006600" }, { id: "pt_8", name: "B. Silva", pos: "MID", number: 10, color: "#006600" }, { id: "pt_9", name: "C. Ronaldo", pos: "FWD", number: 7, color: "#006600" }, { id: "pt_10", name: "G. Ramos", pos: "FWD", number: 26, color: "#006600" }, { id: "pt_11", name: "R. Leão", pos: "FWD", number: 15, color: "#006600" }
+                ]},
+                "Alemania": { flag: "linear-gradient(0deg, #000000 33%, #DD0000 33%, #DD0000 66%, #FFCE00 66%)", players: [
+                    { id: "de_1", name: "M. Neuer", pos: "GK", number: 1, color: "#000000" }, { id: "de_2", name: "J. Kimmich", pos: "DEF", number: 6, color: "#000000" }, { id: "de_3", name: "A. Rüdiger", pos: "DEF", number: 2, color: "#000000" }, { id: "de_4", name: "N. Schlotterbeck", pos: "DEF", number: 4, color: "#000000" }, { id: "de_5", name: "D. Raum", pos: "DEF", number: 3, color: "#000000" }, { id: "de_6", name: "T. Kroos", pos: "MID", number: 8, color: "#000000" }, { id: "de_7", name: "I. Gündoğan", pos: "MID", number: 21, color: "#000000" }, { id: "de_8", name: "J. Musiala", pos: "MID", number: 10, color: "#000000" }, { id: "de_9", name: "K. Havertz", pos: "FWD", number: 7, color: "#000000" }, { id: "de_10", name: "L. Sané", pos: "FWD", number: 19, color: "#000000" }, { id: "de_11", name: "F. Wirtz", pos: "FWD", number: 17, color: "#000000" }
+                ]},
+                "Países Bajos": { flag: "linear-gradient(0deg, #AE1C28 33%, #FFFFFF 33%, #FFFFFF 66%, #21468B 66%)", players: [
+                    { id: "nl_1", name: "B. Verbruggen", pos: "GK", number: 1, color: "#21468B" }, { id: "nl_2", name: "D. Dumfries", pos: "DEF", number: 22, color: "#21468B" }, { id: "nl_3", name: "V. van Dijk", pos: "DEF", number: 4, color: "#21468B" }, { id: "nl_4", name: "S. de Vrij", pos: "DEF", number: 6, color: "#21468B" }, { id: "nl_5", name: "N. Aké", pos: "DEF", number: 5, color: "#21468B" }, { id: "nl_6", name: "F. de Jong", pos: "MID", number: 21, color: "#21468B" }, { id: "nl_7", name: "T. Reijnders", pos: "MID", number: 14, color: "#21468B" }, { id: "nl_8", name: "X. Simons", pos: "MID", number: 7, color: "#21468B" }, { id: "nl_9", name: "M. Depay", pos: "FWD", number: 10, color: "#21468B" }, { id: "nl_10", name: "C. Gakpo", pos: "FWD", number: 11, color: "#21468B" }, { id: "nl_11", name: "D. Malen", pos: "FWD", number: 18, color: "#21468B" }
+                ]},
+                "Italia": { flag: "linear-gradient(90deg, #009246 33%, #FFFFFF 33%, #FFFFFF 66%, #CE2B37 66%)", players: [
+                    { id: "it_1", name: "G. Donnarumma", pos: "GK", number: 21, color: "#009246" }, { id: "it_2", name: "G. Di Lorenzo", pos: "DEF", number: 2, color: "#009246" }, { id: "it_3", name: "A. Bastoni", pos: "DEF", number: 23, color: "#009246" }, { id: "it_4", name: "A. Buongiorno", pos: "DEF", number: 24, color: "#009246" }, { id: "it_5", name: "F. Dimarco", pos: "DEF", number: 3, color: "#009246" }, { id: "it_6", name: "N. Barella", pos: "MID", number: 18, color: "#009246" }, { id: "it_7", name: "D. Frattesi", pos: "MID", number: 16, color: "#009246" }, { id: "it_8", name: "L. Pellegrini", pos: "MID", number: 10, color: "#009246" }, { id: "it_9", name: "M. Retegui", pos: "FWD", number: 9, color: "#009246" }, { id: "it_10", name: "F. Chiesa", pos: "FWD", number: 14, color: "#009246" }, { id: "it_11", name: "G. Scamacca", pos: "FWD", number: 11, color: "#009246" }
+                ]},
+                "Bélgica": { flag: "linear-gradient(0deg, #000000 33%, #FAE042 33%, #FAE042 66%, #ED2939 66%)", players: [
+                    { id: "be_1", name: "K. Casteels", pos: "GK", number: 1, color: "#ED2939" }, { id: "be_2", name: "T. Castagne", pos: "DEF", number: 21, color: "#ED2939" }, { id: "be_3", name: "W. Faes", pos: "DEF", number: 5, color: "#ED2939" }, { id: "be_4", name: "J. Vertonghen", pos: "DEF", number: 4, color: "#ED2939" }, { id: "be_5", name: "A. Theate", pos: "DEF", number: 3, color: "#ED2939" }, { id: "be_6", name: "A. Onana", pos: "MID", number: 26, color: "#ED2939" }, { id: "be_7", name: "Y. Tielemans", pos: "MID", number: 8, color: "#ED2939" }, { id: "be_8", name: "K. De Bruyne", pos: "MID", number: 7, color: "#ED2939" }, { id: "be_9", name: "R. Lukaku", pos: "FWD", number: 9, color: "#ED2939" }, { id: "be_10", name: "J. Doku", pos: "FWD", number: 22, color: "#ED2939" }, { id: "be_11", name: "L. Trossard", pos: "FWD", number: 17, color: "#ED2939" }
+                ]},
+                "Croacia": { flag: "linear-gradient(0deg, #FF0000 33%, #FFFFFF 33%, #FFFFFF 66%, #171796 66%)", players: [
+                    { id: "hr_1", name: "D. Livaković", pos: "GK", number: 1, color: "#171796" }, { id: "hr_2", name: "J. Stanisic", pos: "DEF", number: 22, color: "#171796" }, { id: "hr_3", name: "J. Gvardiol", pos: "DEF", number: 20, color: "#171796" }, { id: "hr_4", name: "J. Šutalo", pos: "DEF", number: 24, color: "#171796" }, { id: "hr_5", name: "B. Sosa", pos: "DEF", number: 19, color: "#171796" }, { id: "hr_6", name: "L. Modrić", pos: "MID", number: 10, color: "#171796" }, { id: "hr_7", name: "M. Kovačić", pos: "MID", number: 8, color: "#171796" }, { id: "hr_8", name: "M. Brozović", pos: "MID", number: 11, color: "#171796" }, { id: "hr_9", name: "A. Kramarić", pos: "FWD", number: 9, color: "#171796" }, { id: "hr_10", name: "A. Budimir", pos: "FWD", number: 17, color: "#171796" }, { id: "hr_11", name: "I. Perišić", pos: "FWD", number: 4, color: "#171796" }
+                ]},
+                "Uruguay": { flag: "linear-gradient(0deg, #003897 20%, #FFFFFF 20%, #FFFFFF 80%, #003897 80%)", players: [
+                    { id: "uy_1", name: "S. Rochet", pos: "GK", number: 23, color: "#003897" }, { id: "uy_2", name: "N. Nández", pos: "DEF", number: 4, color: "#003897" }, { id: "uy_3", name: "J. Giménez", pos: "DEF", number: 2, color: "#003897" }, { id: "uy_4", name: "R. Araújo", pos: "DEF", number: 3, color: "#003897" }, { id: "uy_5", name: "M. Olivera", pos: "DEF", number: 17, color: "#003897" }, { id: "uy_6", name: "M. Ugarte", pos: "MID", number: 5, color: "#003897" }, { id: "uy_7", name: "F. Valverde", pos: "MID", number: 15, color: "#003897" }, { id: "uy_8", name: "N. de la Cruz", pos: "MID", number: 10, color: "#003897" }, { id: "uy_9", name: "D. Núñez", pos: "FWD", number: 19, color: "#003897" }, { id: "uy_10", name: "M. Araújo", pos: "FWD", number: 8, color: "#003897" }, { id: "uy_11", name: "F. Pellistri", pos: "FWD", number: 11, color: "#003897" }
+                ]},
+                "Estados Unidos": { flag: "linear-gradient(180deg, #B22234 25%, #FFFFFF 25%, #FFFFFF 50%, #B22234 50%, #B22234 75%, #FFFFFF 75%)", players: [
+                    { id: "us_1", name: "M. Turner", pos: "GK", number: 1, color: "#B22234" }, { id: "us_2", name: "S. Dest", pos: "DEF", number: 2, color: "#B22234" }, { id: "us_3", name: "C. Richards", pos: "DEF", number: 3, color: "#B22234" }, { id: "us_4", name: "T. Robinson", pos: "DEF", number: 5, color: "#B22234" }, { id: "us_5", name: "A. Scally", pos: "DEF", number: 14, color: "#B22234" }, { id: "us_6", name: "T. Adams", pos: "MID", number: 4, color: "#B22234" }, { id: "us_7", name: "W. McKennie", pos: "MID", number: 8, color: "#B22234" }, { id: "us_8", name: "G. Reyna", pos: "MID", number: 7, color: "#B22234" }, { id: "us_9", name: "F. Sargent", pos: "FWD", number: 24, color: "#B22234" }, { id: "us_10", name: "C. Pulisic", pos: "FWD", number: 10, color: "#B22234" }, { id: "us_11", name: "T. Weah", pos: "FWD", number: 21, color: "#B22234" }
+                ]},
+                "México": { flag: "linear-gradient(0deg, #006847 33%, #FFFFFF 33%, #FFFFFF 66%, #CE1126 66%)", players: [
+                    { id: "mx_1", name: "G. Ochoa", pos: "GK", number: 1, color: "#006847" }, { id: "mx_2", name: "J. Sánchez", pos: "DEF", number: 3, color: "#006847" }, { id: "mx_3", name: "C. Salcedo", pos: "DEF", number: 15, color: "#006847" }, { id: "mx_4", name: "J. Gallardo", pos: "DEF", number: 23, color: "#006847" }, { id: "mx_5", name: "C. Cáceda", pos: "DEF", number: 5, color: "#006847" }, { id: "mx_6", name: "E. Álvarez", pos: "MID", number: 4, color: "#006847" }, { id: "mx_7", name: "L. Chávez", pos: "MID", number: 8, color: "#006847" }, { id: "mx_8", name: "O. Govea", pos: "MID", number: 19, color: "#006847" }, { id: "mx_9", name: "S. Giménez", pos: "FWD", number: 9, color: "#006847" }, { id: "mx_10", name: "H. Lozano", pos: "FWD", number: 22, color: "#006847" }, { id: "mx_11", name: "A. Vega", pos: "FWD", number: 17, color: "#006847" }
+                ]},
+                "Canadá": { flag: "linear-gradient(90deg, #FF0000 25%, #FFFFFF 25%, #FFFFFF 75%, #FF0000 75%)", players: [
+                    { id: "ca_1", name: "M. Crépeau", pos: "GK", number: 1, color: "#FF0000" }, { id: "ca_2", name: "A. Johnston", pos: "DEF", number: 2, color: "#FF0000" }, { id: "ca_3", name: "K. Miller", pos: "DEF", number: 4, color: "#FF0000" }, { id: "ca_4", name: "M. Cornelius", pos: "DEF", number: 5, color: "#FF0000" }, { id: "ca_5", name: "A. Davies", pos: "DEF", number: 19, color: "#FF0000" }, { id: "ca_6", name: "S. Eustáquio", pos: "MID", number: 7, color: "#FF0000" }, { id: "ca_7", name: "J. Osorio", pos: "MID", number: 21, color: "#FF0000" }, { id: "ca_8", name: "T. Buchanan", pos: "MID", number: 11, color: "#FF0000" }, { id: "ca_9", name: "J. David", pos: "FWD", number: 20, color: "#FF0000" }, { id: "ca_10", name: "C. Larin", pos: "FWD", number: 17, color: "#FF0000" }, { id: "ca_11", name: "T. Laryea", pos: "FWD", number: 22, color: "#FF0000" }
+                ]},
+                "Colombia": { flag: "linear-gradient(0deg, #FCD116 50%, #003893 50%)", players: [
+                    { id: "co_1", name: "C. Vargas", pos: "GK", number: 1, color: "#FCD116" }, { id: "co_2", name: "D. Muñoz", pos: "DEF", number: 4, color: "#FCD116" }, { id: "co_3", name: "D. Sánchez", pos: "DEF", number: 23, color: "#FCD116" }, { id: "co_4", name: "J. Mosquera", pos: "DEF", number: 2, color: "#FCD116" }, { id: "co_5", name: "J. Lucumí", pos: "DEF", number: 3, color: "#FCD116" }, { id: "co_6", name: "J. Lerma", pos: "MID", number: 16, color: "#FCD116" }, { id: "co_7", name: "R. Ríos", pos: "MID", number: 8, color: "#FCD116" }, { id: "co_8", name: "J. Rodríguez", pos: "MID", number: 10, color: "#FCD116" }, { id: "co_9", name: "L. Díaz", pos: "FWD", number: 7, color: "#FCD116" }, { id: "co_10", name: "R. Falcao", pos: "FWD", number: 9, color: "#FCD116" }, { id: "co_11", name: "L. Sinisterra", pos: "FWD", number: 19, color: "#FCD116" }
+                ]}
+            };
+
+            const formations = {
+                "4-3-3": [ { pos: "GK", count: 1, labels: ["PO"] }, { pos: "DEF", count: 4, labels: ["LI", "DC", "DC", "LD"] }, { pos: "MID", count: 3, labels: ["MCD", "MCP", "MCP"] }, { pos: "FWD", count: 3, labels: ["EI", "DC", "ED"] } ],
+                "4-4-2": [ { pos: "GK", count: 1, labels: ["PO"] }, { pos: "DEF", count: 4, labels: ["LI", "DC", "DC", "LD"] }, { pos: "MID", count: 4, labels: ["MI", "MCD", "MCD", "MD"] }, { pos: "FWD", count: 2, labels: ["DC", "DC"] } ],
+                "3-5-2": [ { pos: "GK", count: 1, labels: ["PO"] }, { pos: "DEF", count: 3, labels: ["DC", "DC", "DC"] }, { pos: "MID", count: 5, labels: ["CI", "MCD", "MCP", "MCD", "CD"] }, { pos: "FWD", count: 2, labels: ["DC", "DC"] } ],
+                "3-4-3": [ { pos: "GK", count: 1, labels: ["PO"] }, { pos: "DEF", count: 3, labels: ["DC", "DC", "DC"] }, { pos: "MID", count: 4, labels: ["CI", "MCD", "MCD", "CD"] }, { pos: "FWD", count: 3, labels: ["EI", "DC", "ED"] } ]
+            };
+
+            class DreamTeamBuilder {
+                constructor() {
+                    this.selectedPlayers = {}; 
+                    this.benchPlayers = [];    
+                    this.currentFormation = "4-3-3";
+                    this.activeSlotId = null;
+                    this.currentSheetTeam = Object.keys(teamsData)[0];
+                    this.searchTerm = "";
+                    this.lastRemoved = null; 
+                    this.toastTimeout = null;
+                    
+                    this.pitchSection = document.getElementById('pitchSection');
+                    this.pitchGrid = document.getElementById('formationGrid');
+                    this.statusText = document.getElementById('statusText');
+                    
+                    this.backdrop = document.getElementById('backdrop');
+                    this.selectorPanel = document.getElementById('selectorPanel');
+                    this.pickerView = document.getElementById('pickerView');
+                    this.summaryView = document.getElementById('summaryView');
+                    this.sheetTitle = document.getElementById('sheetTitle');
+                    this.sheetSubtitle = document.getElementById('sheetSubtitle');
+                    this.sheetContent = document.getElementById('sheetContent');
+                    this.summaryContent = document.getElementById('summaryContent');
+                    this.summaryActions = document.getElementById('summaryActions');
+                    this.searchInput = document.getElementById('searchInput');
+                    this.tabsWrapper = document.getElementById('tabsWrapper');
+                    this.sheetTeamTabs = document.getElementById('sheetTeamTabs');
+                    
+                    this.formationSelector = document.getElementById('formationSelector');
+                    this.toast = document.getElementById('toast');
+                    this.toastText = document.getElementById('toastText');
+                    this.toastUndo = document.getElementById('toastUndo');
+                    
+                    this.init();
+                }
+
+                init() {
+                    this.loadState();
+                    this.renderPitch();
+                    this.bindFormationControls();
+                    this.bindPanelControls();
+                    this.bindSearch();
+                    this.checkCompletion();
+                    this.triggerInitialHint();
+                    this.initPanel(); 
+                }
+
+                isDesktop() {
+                    return window.innerWidth >= 1024;
+                }
+
+                initPanel() {
+                    if (this.isDesktop()) {
+                        if (Object.keys(this.selectedPlayers).length === 11) {
+                            this.openSummary();
+                        } else {
+                            this.openPicker(null, null, null);
+                        }
+                    }
+                }
+
+                saveState() {
+                    try {
+                        localStorage.setItem('xi_ideal_2026', JSON.stringify({
+                            players: this.selectedPlayers,
+                            formation: this.currentFormation
+                        }));
+                    } catch (e) {}
+                }
+
+                loadState() {
+                    try {
+                        const saved = localStorage.getItem('xi_ideal_2026');
+                        if (saved) {
+                            const data = JSON.parse(saved);
+                            if (data && data.players && typeof data.players === 'object' && formations[data.formation]) {
+                                this.selectedPlayers = data.players;
+                                this.currentFormation = data.formation;
+                                document.querySelectorAll('.formation-btn').forEach(btn => {
+                                    btn.classList.toggle('active', btn.dataset.formation === this.currentFormation);
+                                    btn.setAttribute('aria-selected', btn.dataset.formation === this.currentFormation);
+                                });
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                vibrate(pattern) {
+                    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+                }
+
+                bindPanelControls() {
+                    document.getElementById('sheetClose').addEventListener('click', () => this.closePanel());
+                    this.backdrop.addEventListener('click', () => this.closePanel());
+                    
+                    document.getElementById('floatSaveBtn').addEventListener('click', () => this.downloadXI());
+                    document.getElementById('floatShareBtn').addEventListener('click', () => this.shareXI());
+                    document.getElementById('floatResetBtn').addEventListener('click', () => this.resetBuilder());
+                }
+
+                bindSearch() {
+                    this.searchInput.addEventListener('input', (e) => {
+                        this.searchTerm = e.target.value.toLowerCase();
+                        if (this.activeSlotId) {
+                            this.renderSheetPlayers(this.activePos, this.activeSlotId, this.activeCurrentPlayer, this.currentSheetTeam);
+                        }
+                        if (this.searchTerm.length > 0) {
+                            this.tabsWrapper.style.display = 'none';
+                        } else {
+                            this.tabsWrapper.style.display = 'block';
+                        }
+                    });
+                }
+
+                bindFormationControls() {
+                    this.formationSelector.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('formation-btn')) {
+                            const newFormation = e.target.dataset.formation;
+                            if (newFormation !== this.currentFormation) {
+                                this.changeFormation(newFormation);
+                                document.querySelectorAll('.formation-btn').forEach(btn => {
+                                    const isActive = btn.dataset.formation === newFormation;
+                                    btn.classList.toggle('active', isActive);
+                                    btn.setAttribute('aria-selected', isActive);
+                                });
+                            }
+                        }
+                    });
+                }
+
+                changeFormation(newFormationKey) {
+                    this.currentFormation = newFormationKey;
+                    const newStructure = formations[newFormationKey];
+                    
+                    const allSelectedPlayers = [...Object.values(this.selectedPlayers), ...this.benchPlayers];
+                    this.selectedPlayers = {};
+                    this.benchPlayers = [];
+                    
+                    const newCounts = {};
+                    newStructure.forEach(row => newCounts[row.pos] = row.count);
+                    const currentCounts = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+
+                    allSelectedPlayers.forEach(player => {
+                        if (currentCounts[player.pos] < newCounts[player.pos]) {
+                            const newSlotId = `${player.pos}-${currentCounts[player.pos]}`;
+                            this.selectedPlayers[newSlotId] = player;
+                            currentCounts[player.pos]++;
+                        } else {
+                            this.benchPlayers.push(player);
+                        }
+                    });
+
+                    this.renderPitch(true);
+                    this.checkCompletion();
+                    this.saveState();
+                    
+                    if (this.isDesktop() && this.summaryView.classList.contains('active')) {
+                        this.openSummary();
+                    }
+                }
+
+                renderPitch(animate = false) {
+                    this.pitchGrid.innerHTML = '';
+                    const structure = formations[this.currentFormation];
+                    if (!structure) return;
+                    
+                    structure.forEach((rowData, rowIndex) => {
+                        const rowEl = document.createElement('div');
+                        rowEl.className = 'formation-row';
+                        rowEl.setAttribute('role', 'group');
+                        rowEl.setAttribute('aria-label', `Línea de ${rowData.pos}`);
+                        
+                        for (let i = 0; i < rowData.count; i++) {
+                            const slotId = `${rowData.pos}-${i}`;
+                            const slot = document.createElement('div');
+                            slot.dataset.slotId = slotId;
+                            slot.dataset.pos = rowData.pos;
+                            slot.setAttribute('role', 'button');
+                            slot.setAttribute('tabindex', '0');
+                            
+                            const label = rowData.labels && rowData.labels[i] ? rowData.labels[i] : rowData.pos;
+
+                            if (animate) {
+                                slot.style.animationDelay = `${(rowIndex * 100) + (i * 50)}ms`;
+                            } else {
+                                slot.style.animation = 'none';
+                            }
+
+                            const playerInSlot = this.selectedPlayers[slotId];
+                            
+                            if (playerInSlot) {
+                                slot.className = 'player-slot filled';
+                                slot.setAttribute('aria-label', `Posición ${label}, actualmente ${playerInSlot.name} de ${playerInSlot.teamName}. Activa para editar.`);
+                                slot.innerHTML = `
+                                    <div class="filled-avatar" style="background: ${playerInSlot.color};" aria-hidden="true">
+                                        ${playerInSlot.number}
+                                    </div>
+                                    <div class="filled-info" aria-hidden="true">
+                                        <div class="filled-info__main">
+                                            <span class="filled-info__flag" style="background: ${playerInSlot.flag}"></span>
+                                            <span class="filled-info__name">${playerInSlot.name}</span>
+                                        </div>
+                                        <span class="filled-info__pos">${playerInSlot.pos}</span>
+                                    </div>
+                                `;
+                            } else {
+                                slot.className = 'player-slot empty';
+                                slot.setAttribute('aria-label', `Posición ${label} vacía. Activa para seleccionar jugador.`);
+                                slot.innerHTML = `
+                                    <span class="player-slot__icon" aria-hidden="true">+</span>
+                                    <span class="player-slot__pos" aria-hidden="true">${label}</span>
+                                `;
+                            }
+                            
+                            slot.addEventListener('click', () => this.handleSlotClick(slot));
+                            slot.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    this.handleSlotClick(slot);
+                                }
+                            });
+                            rowEl.appendChild(slot);
+                        }
+                        
+                        this.pitchGrid.appendChild(rowEl);
+                    });
+                }
+
+                triggerInitialHint() {
+                    if (Object.keys(this.selectedPlayers).length === 0) {
+                        const firstGK = document.querySelector('.player-slot[data-pos="GK"]');
+                        if (firstGK) {
+                            firstGK.classList.add('hint');
+                            setTimeout(() => firstGK.classList.remove('hint'), 4000);
+                        }
+                    }
+                }
+
+                handleSlotClick(slotEl) {
+                    this.vibrate(10);
+                    document.querySelectorAll('.player-slot.hint, .player-slot.is-selecting').forEach(s => {
+                        s.classList.remove('hint');
+                        s.classList.remove('is-selecting');
+                    });
+
+                    if (this.pitchSection.classList.contains('complete')) {
+                        if (!this.isDesktop()) this.openSummary();
+                        return;
+                    }
+
+                    const slotId = slotEl.dataset.slotId;
+                    const pos = slotEl.dataset.pos;
+                    const currentPlayer = this.selectedPlayers[slotId];
+                    
+                    this.activeSlotId = slotId;
+                    this.activePos = pos;
+                    this.activeCurrentPlayer = currentPlayer;
+                    this.searchInput.value = '';
+                    this.searchTerm = "";
+                    this.tabsWrapper.style.display = 'block';
+                    
+                    slotEl.classList.add('is-selecting');
+                    this.openPicker(pos, slotId, currentPlayer);
+                }
+
+                openPanel() {
+                    if (!this.isDesktop()) {
+                        this.selectorPanel.classList.add('open');
+                        this.backdrop.classList.add('show');
+                        document.body.classList.add('sheet-open');
+                        setTimeout(() => this.searchInput.focus(), 300);
+                    }
+                }
+
+                closePanel() {
+                    if (!this.isDesktop()) {
+                        this.selectorPanel.classList.remove('open');
+                        this.backdrop.classList.remove('show');
+                        document.body.classList.remove('sheet-open');
+                    }
+                    this.activeSlotId = null;
+                    this.searchInput.value = '';
+                    this.searchTerm = "";
+                    document.querySelectorAll('.player-slot.is-selecting').forEach(s => s.classList.remove('is-selecting'));
+                }
+
+                openPicker(pos, slotId, currentPlayer) {
+                    this.pickerView.classList.remove('hidden');
+                    this.summaryView.classList.remove('active');
+
+                    let posName = "Portero";
+                    if (pos === "DEF") posName = "Defensa";
+                    if (pos === "MID") posName = "Mediocampista";
+                    if (pos === "FWD") posName = "Delantero";
+
+                    if (pos) {
+                        this.sheetTitle.innerText = `Elegir ${posName}`;
+                        this.sheetSubtitle.innerText = `Posición ${pos}`;
+                    } else {
+                        this.sheetTitle.innerText = "Seleccionar Jugador";
+                        this.sheetSubtitle.innerText = "Toca un puesto en el campo";
+                    }
+
+                    if (!teamsData[this.currentSheetTeam] || (pos && !teamsData[this.currentSheetTeam].players.some(p => p.pos === pos))) {
+                        this.currentSheetTeam = Object.keys(teamsData)[0];
+                    }
+
+                    let tabsHTML = '';
+                    for (const teamName in teamsData) {
+                        const hasPos = pos ? teamsData[teamName].players.some(p => p.pos === pos) : true;
+                        if (hasPos) {
+                            const team = teamsData[teamName];
+                            const isActive = (teamName === this.currentSheetTeam);
+                            tabsHTML += `
+                                <button class="sheet-team-tab ${isActive ? 'active' : ''}" data-team="${teamName}" role="tab" aria-selected="${isActive}" aria-label="Seleccionar país ${teamName}">
+                                    <span class="sheet-team-flag" style="background: ${team.flag}" aria-hidden="true"></span>
+                                    <span>${teamName}</span>
+                                </button>
+                            `;
+                        }
+                    }
+                    this.sheetTeamTabs.innerHTML = tabsHTML;
+                    
+                    let contentHTML = '';
+                    if (currentPlayer) {
+                        contentHTML += `<button class="remove-btn" id="removePlayerBtn" aria-label="Quitar a ${currentPlayer.name} del equipo">Quitar a ${currentPlayer.name} del XI</button>`;
+                    }
+                    contentHTML += `<div class="sheet-player-list" id="sheetPlayerList"></div>`;
+                    this.sheetContent.innerHTML = contentHTML;
+                    
+                    this.openPanel();
+
+                    if (currentPlayer) {
+                        document.getElementById('removePlayerBtn').addEventListener('click', () => {
+                            this.removePlayerFromSlot(slotId, true);
+                            if (!this.isDesktop()) this.closePanel();
+                            else this.openPicker(null, null, null);
+                        });
+                    }
+
+                    this.sheetTeamTabs.addEventListener('wheel', (e) => {
+                        if (e.deltaY !== 0) {
+                            e.preventDefault();
+                            this.sheetTeamTabs.scrollLeft += e.deltaY;
+                        }
+                    }, { passive: false });
+
+                    setTimeout(() => {
+                        const activeTab = this.sheetTeamTabs.querySelector('.sheet-team-tab.active');
+                        if (activeTab) {
+                            const tabRect = activeTab.getBoundingClientRect();
+                            const containerRect = this.sheetTeamTabs.getBoundingClientRect();
+                            const scrollPosition = activeTab.offsetLeft - (containerRect.width / 2) + (tabRect.width / 2);
+                            this.sheetTeamTabs.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+                        }
+                    }, 100);
+
+                    this.sheetTeamTabs.querySelectorAll('.sheet-team-tab').forEach(tab => {
+                        tab.addEventListener('click', (e) => {
+                            const teamName = e.currentTarget.dataset.team;
+                            this.currentSheetTeam = teamName;
+                            this.sheetTeamTabs.querySelectorAll('.sheet-team-tab').forEach(t => {
+                                t.classList.remove('active');
+                                t.setAttribute('aria-selected', 'false');
+                            });
+                            e.currentTarget.classList.add('active');
+                            e.currentTarget.setAttribute('aria-selected', 'true');
+                            this.renderSheetPlayers(pos, slotId, currentPlayer, teamName);
+                        });
+                    });
+
+                    this.renderSheetPlayers(pos, slotId, currentPlayer, this.currentSheetTeam);
+                }
+
+                renderSheetPlayers(pos, slotId, currentPlayer, teamName) {
+                    const listContainer = document.getElementById('sheetPlayerList');
+                    if (!listContainer) return;
+
+                    let playersToRender = [];
+                    
+                    if (this.searchTerm.length > 0) {
+                        for (const tName in teamsData) {
+                            teamsData[tName].players.forEach(p => {
+                                if (!pos || (p.pos === pos && (p.name.toLowerCase().includes(this.searchTerm) || tName.toLowerCase().includes(this.searchTerm)))) {
+                                    playersToRender.push({ ...p, teamName: tName, flag: teamsData[tName].flag });
+                                }
+                            });
+                        }
+                    } else {
+                        const team = teamsData[teamName];
+                        if (team) {
+                            playersToRender = pos ? team.players.filter(p => p.pos === pos).map(p => ({ ...p, teamName, flag: team.flag })) : [];
+                        }
+                    }
+
+                    let html = '<div class="sheet-list" role="list">';
+
+                    if (!pos && this.isDesktop()) {
+                         html += '<div style="text-align: center; padding: 3rem 1rem; color: var(--color-text-muted); font-size: 0.9rem;">Toca un puesto vacío en el campo para empezar a construir tu XI.</div>';
+                    } else if (playersToRender.length === 0) {
+                        html += '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted); font-size: 0.85rem;">No se encontraron jugadores.</div>';
+                    } else {
+                        playersToRender.forEach(player => {
+                            const isInPitch = Object.values(this.selectedPlayers).some(p => p.id === player.id);
+                            const isBenched = this.benchPlayers.some(p => p.id === player.id);
+                            const isCurrent = currentPlayer && currentPlayer.id === player.id;
+                            
+                            let cardClass = 'player-card';
+                            let ariaLabel = `Seleccionar a ${player.name} de ${player.teamName}`;
+                            
+                            if (isInPitch && !isCurrent) {
+                                cardClass += ' selected';
+                                ariaLabel = `${player.name} de ${player.teamName}, ya seleccionado`;
+                            }
+                            if (isBenched) {
+                                cardClass += ' benched';
+                                ariaLabel = `${player.name} de ${player.teamName}, en el banquillo`;
+                            }
+                            if (isCurrent) {
+                                ariaLabel = `${player.name} de ${player.teamName}, seleccionado actualmente`;
+                            }
+
+                            html += `
+                                <div class="${cardClass}" data-player-id="${player.id}" data-team="${player.teamName}" role="listitem" tabindex="0" aria-label="${ariaLabel}" ${isInPitch && !isCurrent ? 'aria-disabled="true"' : ''}>
+                                    <div class="player-card__img" style="background: ${player.color}" aria-hidden="true">
+                                        ${player.number}
+                                    </div>
+                                    <div class="player-card__info">
+                                        <span class="player-card__name">${player.name}</span>
+                                        <span class="player-card__meta">${player.teamName}</span>
+                                    </div>
+                                    ${isBenched ? '<span style="font-size: 0.7rem; font-weight: 600; color: #B78628; text-transform: uppercase;" aria-hidden="true">Suplente</span>' : ''}
+                                    ${isCurrent ? '<span style="font-size: 0.7rem; font-weight: 600; color: var(--color-pitch); text-transform: uppercase;" aria-hidden="true">✓ Actual</span>' : ''}
+                                </div>
+                            `;
+                        });
+                    }
+                    html += '</div>';
+                    
+                    listContainer.style.opacity = '0';
+                    listContainer.style.transform = 'translateY(10px)';
+                    listContainer.style.transition = 'all 200ms ease';
+                    
+                    listContainer.innerHTML = html;
+
+                    requestAnimationFrame(() => {
+                        listContainer.style.opacity = '1';
+                        listContainer.style.transform = 'translateY(0)';
+                    });
+
+                    listContainer.querySelectorAll('.player-card').forEach(card => {
+                        if (!card.classList.contains('selected')) {
+                            card.addEventListener('click', () => {
+                                this.vibrate(10);
+                                const playerId = card.dataset.playerId;
+                                const tName = card.dataset.team;
+                                const playerData = teamsData[tName].players.find(p => p.id === playerId);
+                                
+                                const playerWithContext = { ...playerData, teamName: tName, flag: teamsData[tName].flag };
+                                
+                                if (this.isDesktop() && !slotId) {
+                                    const emptySlot = this.findEmptySlot(playerData.pos);
+                                    if (emptySlot) {
+                                        this.assignPlayerToSlot(playerWithContext, emptySlot.dataset.slotId);
+                                        if (Object.keys(this.selectedPlayers).length < 11) {
+                                            this.openPicker(null, null, null); 
+                                        }
+                                    } else {
+                                        this.showToast(`No hay espacio para más ${playerData.pos}`);
+                                    }
+                                } else {
+                                    this.assignPlayerToSlot(playerWithContext, slotId);
+                                    if (!this.isDesktop()) this.closePanel();
+                                    else this.openPicker(null, null, null); 
+                                }
+                            });
+                            card.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    card.click();
+                                }
+                            });
+                        }
+                    });
+                }
+
+                findEmptySlot(pos) {
+                    const slots = document.querySelectorAll(`.player-slot[data-pos="${pos}"]`);
+                    for (let slot of slots) {
+                        if (!this.selectedPlayers[slot.dataset.slotId]) return slot;
+                    }
+                    return null;
+                }
+
+                openSummary() {
+                    this.pickerView.classList.add('hidden');
+                    this.summaryView.classList.add('active');
+                    this.sheetTitle.innerText = "XI Ideal Completado";
+                    this.sheetSubtitle.innerText = "Tu alineación final";
+                    
+                    const structure = formations[this.currentFormation];
+                    let html = '';
+                    
+                    structure.forEach(row => {
+                        let groupTitle = "";
+                        if (row.pos === "GK") groupTitle = "Portero";
+                        if (row.pos === "DEF") groupTitle = "Defensas";
+                        if (row.pos === "MID") groupTitle = "Mediocampo";
+                        if (row.pos === "FWD") groupTitle = "Ataque";
+                        
+                        html += `<div class="summary-group" role="list" aria-label="${groupTitle}"><h3>${groupTitle}</h3>`;
+                        
+                        for (let i = 0; i < row.count; i++) {
+                            const slotId = `${row.pos}-${i}`;
+                            const player = this.selectedPlayers[slotId];
+                            if (player) {
+                                html += `
+                                    <div class="summary-item" role="listitem" aria-label="${player.name}, ${player.teamName}">
+                                        <div class="summary-item__number" style="background: ${player.color};" aria-hidden="true">
+                                            ${player.number}
+                                        </div>
+                                        <div class="summary-item__info">
+                                            <span class="summary-item__name">${player.name}</span>
+                                            <span class="summary-item__team">${player.teamName}</span>
+                                        </div>
+                                        <span class="summary-item__flag" style="background: ${player.flag}" aria-hidden="true"></span>
+                                    </div>
+                                `;
+                            }
+                        }
+                        html += `</div>`;
+                    });
+
+                    this.summaryContent.innerHTML = html;
+                    
+                    this.summaryActions.innerHTML = `
+                        <button class="btn btn-primary" id="saveBtn" aria-label="Guardar imagen de tu equipo">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Guardar Imagen</span>
+                        </button>
+                        <div class="btn-row">
+                            <button class="btn btn-secondary" id="shareBtn" aria-label="Compartir enlace de tu equipo">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                <span>Compartir</span>
+                            </button>
+                            <button class="btn btn-ghost" id="resetBtn" aria-label="Reiniciar equipo y empezar de cero">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                                <span>Reiniciar</span>
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('saveBtn').addEventListener('click', () => this.downloadXI());
+                    document.getElementById('shareBtn').addEventListener('click', () => this.shareXI());
+                    document.getElementById('resetBtn').addEventListener('click', () => {
+                        this.resetBuilder();
+                        if (!this.isDesktop()) this.closePanel();
+                    });
+
+                    this.openPanel();
+                }
+
+                checkCompletion() {
+                    const count = Object.keys(this.selectedPlayers).length;
+                    const wasComplete = this.pitchSection.classList.contains('complete');
+                    const isComplete = count === 11;
+
+                    if (isComplete) {
+                        this.statusText.innerText = "¡XI Ideal Completado!";
+                        this.pitchSection.classList.add('complete');
+                        
+                        if (!wasComplete) {
+                            this.pitchSection.classList.add('celebrate');
+                            this.vibrate([20, 50, 20]);
+                            
+                            if (typeof confetti !== 'undefined') {
+                                try {
+                                    confetti({
+                                        particleCount: 120,
+                                        spread: 70,
+                                        origin: { y: 0.6 },
+                                        colors: ['#D4AF37', '#FFD700', '#FFEC8B', '#FFFFFF']
+                                    });
+                                } catch(e) {}
+                            }
+
+                            setTimeout(() => {
+                                this.pitchSection.classList.remove('celebrate');
+                                if (this.isDesktop()) this.openSummary();
+                            }, 2500); 
+                        } else if (this.isDesktop() && !this.summaryView.classList.contains('active')) {
+                            this.openSummary();
+                        }
+                    } else {
+                        if (count === 0) {
+                            this.statusText.innerText = "¡Arma tu XI Ideal!";
+                        } else {
+                            this.statusText.innerText = `Faltan ${11 - count} jugadores`;
+                        }
+                        this.pitchSection.classList.remove('complete');
+                        if (this.isDesktop() && !this.pickerView.classList.contains('hidden')) {
+                           // Already in picker view
+                        } else if (this.isDesktop()) {
+                           this.openPicker(null, null, null);
+                        }
+                    }
+                    this.saveState();
+                }
+
+                assignPlayerToSlot(player, slotId) {
+                    const benchIndex = this.benchPlayers.findIndex(p => p.id === player.id);
+                    if (benchIndex !== -1) {
+                        this.benchPlayers.splice(benchIndex, 1);
+                    }
+
+                    this.selectedPlayers[slotId] = player;
+                    this.lastRemoved = null;
+                    this.toastUndo.style.display = 'none';
+                    
+                    this.renderPitch();
+                    this.checkCompletion();
+                    this.showToast(`${player.name} en el XI`);
+                }
+
+                removePlayerFromSlot(slotId, showUndo = false) {
+                    const player = this.selectedPlayers[slotId];
+                    if (!player) return;
+
+                    this.lastRemoved = { player, slotId };
+                    delete this.selectedPlayers[slotId];
+                    this.renderPitch();
+                    this.checkCompletion();
+                    
+                    if (showUndo) {
+                        this.showToast(`${player.name} removido`, true);
+                    }
+                }
+
+                showToast(message, showUndo = false) {
+                    this.toastText.textContent = message;
+                    this.toast.classList.add('show');
+                    
+                    if (showUndo && this.lastRemoved) {
+                        this.toastUndo.style.display = 'block';
+                        this.toastUndo.onclick = () => {
+                            const removed = this.lastRemoved;
+                            if (!removed) return;
+                            
+                            this.selectedPlayers[removed.slotId] = removed.player;
+                            this.lastRemoved = null;
+                            this.renderPitch();
+                            this.checkCompletion();
+                            this.toast.classList.remove('show');
+                            this.showToast(`${removed.player.name} restaurado`);
+                        };
+                    } else {
+                        this.toastUndo.style.display = 'none';
+                    }
+
+                    clearTimeout(this.toastTimeout);
+                    this.toastTimeout = setTimeout(() => {
+                        this.toast.classList.remove('show');
+                    }, 4000); 
+                }
+
+                async downloadXI() {
+                    if (typeof html2canvas === 'undefined') {
+                        this.showToast("Error: Librería de imagen no cargada.");
+                        return;
+                    }
+
+                    this.showToast("Generando imagen...");
+                    
+                    const actions = document.getElementById('completionActions');
+                    const originalDisplay = actions.style.display;
+                    actions.style.display = 'none';
+
+                    const frame = document.createElement('div');
+                    frame.style.cssText = `position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 40; pointer-events: none; display: flex; flex-direction: column;`;
+                    
+                    const topBar = document.createElement('div');
+                    topBar.style.cssText = `padding: 2rem 2rem 1rem; text-align: center; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);`;
+                    topBar.innerHTML = `
+                        <h2 style="font-family: 'Instrument Serif', serif; font-size: 2rem; margin: 0; color: #FFD700; font-style: italic;">Mundial 2026</h2>
+                        <p style="font-family: 'Sora', sans-serif; color: white; margin: 0.5rem 0 0; text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.8rem; font-weight: 600;">Mi XI Ideal | Formación ${this.currentFormation}</p>
+                    `;
+                    
+                    const bottomBar = document.createElement('div');
+                    bottomBar.style.cssText = `padding: 1rem 2rem 1.5rem; text-align: center; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); margin-top: auto;`;
+                    bottomBar.innerHTML = `
+                        <p style="font-family: 'Sora', sans-serif; color: rgba(255,255,255,0.6); margin: 0; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem;">Creado con el Builder Oficial</p>
+                    `;
+
+                    frame.appendChild(topBar);
+                    frame.appendChild(bottomBar);
+                    this.pitchSection.appendChild(frame);
+
+                    try {
+                        const canvas = await html2canvas(this.pitchSection, {
+                            backgroundColor: '#1A4D2E',
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+                        
+                        const link = document.createElement('a');
+                        link.download = 'mi-xi-ideal-mundial-2026.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        this.showToast("¡Imagen guardada en tu dispositivo!");
+                    } catch (e) {
+                        this.showToast("Hubo un error al generar la imagen");
+                    } finally {
+                        this.pitchSection.removeChild(frame);
+                        actions.style.display = originalDisplay; 
+                    }
+                }
+
+                async shareXI() {
+                    const url = window.location.href;
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(url);
+                            this.showToast("¡Enlace copiado al portapapeles!");
+                        } else {
+                            this.showToast("Copia manualmente: " + url);
+                        }
+                    } catch (err) {
+                        this.showToast("Copia manualmente: " + url);
+                    }
+                }
+
+                resetBuilder() {
+                    this.selectedPlayers = {};
+                    this.benchPlayers = [];
+                    this.changeFormation("4-3-3");
+                    document.querySelectorAll('.formation-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.formation === "4-3-3");
+                        btn.setAttribute('aria-selected', btn.dataset.formation === "4-3-3");
+                    });
+                    this.renderPitch();
+                    this.checkCompletion();
+                    this.showToast("Equipo reiniciado. ¡Empieza de cero!");
+                    this.triggerInitialHint();
+                    if (this.isDesktop()) this.openPicker(null, null, null);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                try {
+                    new DreamTeamBuilder();
+                } catch (e) {
+                    console.error("Initialization error:", e);
+                    document.body.innerHTML = "<div style='color:white;text-align:center;padding:50px;font-family:sans-serif;'>Error al cargar la aplicación. Revisa la consola (F12).</div>";
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
