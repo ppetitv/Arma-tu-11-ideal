@@ -51,6 +51,9 @@
             this.formationSelector = documentObject.getElementById('formationSelector');
             this.slotBubble = documentObject.getElementById('slotBubble');
             this.slotBubbleText = documentObject.getElementById('slotBubbleText');
+            this.pitchMenu = documentObject.getElementById('pitchMenu');
+            this.pitchMenuToggle = documentObject.getElementById('pitchMenuToggle');
+            this.pitchMenuPanel = documentObject.getElementById('pitchMenuPanel');
             this.toast = documentObject.getElementById('toast');
             this.toastText = documentObject.getElementById('toastText');
             this.toastUndo = documentObject.getElementById('toastUndo');
@@ -89,6 +92,13 @@
                     this.syncFormationButtons();
                 }
             });
+
+            if (this.pitchMenuToggle) {
+                this.pitchMenuToggle.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    this.togglePitchMenu();
+                });
+            }
 
             this.sheetCloseButton.addEventListener('click', () => this.closePanel());
             this.backdrop.addEventListener('click', () => this.closePanel());
@@ -147,6 +157,20 @@
             });
 
             this.toastUndo.addEventListener('click', () => this.restoreLastRemoved());
+            if (this.pitchMenuPanel) {
+                this.pitchMenuPanel.addEventListener('click', (event) => {
+                    if (event.target.closest('a')) this.closePitchMenu();
+                });
+            }
+
+            documentObject.addEventListener('click', (event) => {
+                if (!this.pitchMenu || !this.pitchMenu.classList.contains('open')) return;
+                if (event.target.closest('#pitchMenu')) return;
+                this.closePitchMenu();
+            });
+            documentObject.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') this.closePitchMenu();
+            });
             windowObject.addEventListener('resize', () => this.updateFieldAnchors());
             windowObject.addEventListener('scroll', () => this.updateFieldAnchors(), { passive: true });
         }
@@ -554,6 +578,23 @@
             this.sheetCloseButton.setAttribute('title', label);
         }
 
+        togglePitchMenu() {
+            if (!this.pitchMenu || !this.pitchMenuToggle || !this.pitchMenuPanel) return;
+
+            const shouldOpen = !this.pitchMenu.classList.contains('open');
+            this.pitchMenu.classList.toggle('open', shouldOpen);
+            this.pitchMenuToggle.setAttribute('aria-expanded', String(shouldOpen));
+            this.pitchMenuPanel.hidden = !shouldOpen;
+        }
+
+        closePitchMenu() {
+            if (!this.pitchMenu || !this.pitchMenuToggle || !this.pitchMenuPanel) return;
+
+            this.pitchMenu.classList.remove('open');
+            this.pitchMenuToggle.setAttribute('aria-expanded', 'false');
+            this.pitchMenuPanel.hidden = true;
+        }
+
         buildSummaryMarkup() {
             return this.formations[this.currentFormation].map((row) => `
                 <div class="summary-group" role="list" aria-label="${this.config.summaryTitles[row.pos]}">
@@ -837,6 +878,9 @@
 
                         const pitchBrand = clonedDocument.getElementById('pitchBrand');
                         if (pitchBrand) pitchBrand.remove();
+
+                        const pitchMenu = clonedDocument.getElementById('pitchMenu');
+                        if (pitchMenu) pitchMenu.remove();
 
                         const slotBubble = clonedDocument.getElementById('slotBubble');
                         if (slotBubble) slotBubble.remove();
