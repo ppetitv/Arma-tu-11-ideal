@@ -255,7 +255,7 @@
 
             if (player) {
                 return `
-                    <div class="player-slot filled" data-slot-id="${slotId}" data-pos="${row.pos}" role="button" tabindex="0" aria-label="Posicion ${label}, actualmente ${player.name} de ${player.teamName}. Activa para editar." ${animationStyle}>
+                    <div class="player-slot filled" data-slot-id="${slotId}" data-pos="${row.pos}" role="button" tabindex="0" aria-label="Posición ${label}, actualmente ${player.name} de ${player.teamName}. Activa para editar." ${animationStyle}>
                         <div class="filled-avatar" style="background:${player.color}" aria-hidden="true">${player.number}</div>
                         <div class="filled-info" aria-hidden="true">
                             <div class="filled-info__main">
@@ -271,7 +271,7 @@
             }
 
             return `
-                <div class="player-slot empty" data-slot-id="${slotId}" data-pos="${row.pos}" role="button" tabindex="0" aria-label="Posicion ${label} vacia. Activa para seleccionar jugador." ${animationStyle}>
+                <div class="player-slot empty" data-slot-id="${slotId}" data-pos="${row.pos}" role="button" tabindex="0" aria-label="Posición ${label} vacía. Activa para seleccionar jugador." ${animationStyle}>
                     <span class="player-slot__icon" aria-hidden="true">+</span>
                     <span class="player-slot__pos" aria-hidden="true">${label}</span>
                 </div>
@@ -338,17 +338,37 @@
             }
         }
 
+        setPickerLockedState(locked) {
+            if (!this.searchInput || !this.pickerView) return;
+            this.searchInput.disabled = locked;
+            this.pickerView.classList.toggle('is-locked', locked);
+
+            if (locked) {
+                this.searchInput.value = '';
+                this.searchTerm = '';
+            }
+
+            this.toggleTabsVisibility();
+            if (locked) this.tabsWrapper.style.display = 'none';
+        }
+
         openPicker() {
             this.pickerView.classList.remove('hidden');
             this.summaryView.classList.remove('active');
             this.updateCloseButton();
 
+            const locked = !this.activePos;
+            this.setPickerLockedState(locked);
+
             if (this.activePos) {
-                this.sheetTitle.textContent = `Elegir ${this.config.positionNames[this.activePos]}`;
-                this.sheetSubtitle.textContent = `Posicion ${this.activePos}`;
+                const posName = this.config.positionNames[this.activePos];
+                this.sheetTitle.textContent = `Elegir ${posName}`;
+                this.sheetSubtitle.textContent = `Posición ${this.activePos}`;
+                this.searchInput.setAttribute('placeholder', `Buscar ${posName} o selección...`);
             } else {
                 this.sheetTitle.textContent = 'Seleccionar Jugador';
-                this.sheetSubtitle.textContent = 'Toca un puesto en el campo';
+                this.sheetSubtitle.textContent = 'Paso 1: elige un puesto en el campo';
+                this.searchInput.setAttribute('placeholder', 'Primero elige un puesto en el campo');
             }
 
             if (!this.teamSupportsCurrentPosition(this.currentSheetTeam)) {
@@ -457,7 +477,14 @@
 
         buildPlayerListMarkup(players) {
             if (!this.activePos && this.isDesktop()) {
-                return '<div class="sheet-empty-state sheet-empty-state--desktop">Toca un puesto vacio en el campo para empezar a construir tu 11.</div>';
+                return `
+                    <div class="sheet-empty-state sheet-empty-state--desktop">
+                        <span class="sheet-empty-state__badge">1</span>
+                        <div class="sheet-empty-state__text">
+                            <p class="sheet-empty-state__title">Elige un puesto del campo</p>
+                            <p class="sheet-empty-state__copy">Toca cualquier casilla vacía (arquero, defensa, medio o delantero) para activar la búsqueda y ver los jugadores disponibles en esa posición.</p>
+                        </div>
+                    </div>`;
             }
 
             if (players.length === 0) {
@@ -522,7 +549,7 @@
             if (this.isDesktop() && !this.activeSlotId) {
                 const emptySlot = this.findEmptySlot(player.pos);
                 if (!emptySlot) {
-                    this.showToast(`No hay espacio para mas ${player.pos}`);
+                    this.showToast(`No hay espacio para más ${player.pos}`);
                     return;
                 }
 
@@ -546,7 +573,7 @@
             this.summaryView.classList.add('active');
             this.updateCloseButton();
             this.sheetTitle.textContent = '11 Ideal Completado';
-            this.sheetSubtitle.textContent = 'Tu alineacion final';
+            this.sheetSubtitle.textContent = 'Tu alineación final';
             this.summaryContent.innerHTML = this.buildSummaryMarkup();
             this.summaryActions.innerHTML = `
                 <button class="btn btn-primary" id="saveBtn" aria-label="Guardar imagen de tu equipo">
@@ -572,7 +599,7 @@
 
             const hasActiveSelection = Boolean(this.activePos || this.activeCurrentPlayer);
             const isSummaryVisible = this.summaryView.classList.contains('active');
-            const label = isSummaryVisible ? 'Volver al selector' : hasActiveSelection ? 'Cancelar seleccion actual' : 'Cerrar selector';
+            const label = isSummaryVisible ? 'Volver al selector' : hasActiveSelection ? 'Cancelar selección actual' : 'Cerrar selector';
 
             this.sheetCloseButton.setAttribute('aria-label', label);
             this.sheetCloseButton.setAttribute('title', label);
@@ -842,7 +869,7 @@
 
         async downloadXI() {
             if (typeof windowObject.html2canvas === 'undefined') {
-                this.showToast('Error: libreria de imagen no cargada.');
+                this.showToast('Error: librería de imagen no cargada.');
                 return;
             }
 
@@ -934,7 +961,7 @@
             topBar.style.cssText = 'padding:2rem 2rem 1rem;text-align:center;background:linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);';
             topBar.innerHTML = `
                 <h2 style="font-family:'Barlow Condensed', sans-serif;font-size:2rem;margin:0;color:#FFD700;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;">Mundial 2026</h2>
-                <p style="font-family:'Sora', sans-serif;color:white;margin:0.5rem 0 0;text-transform:uppercase;letter-spacing:0.15em;font-size:0.8rem;font-weight:600;">Mi 11 Ideal | Formacion ${this.currentFormation}</p>
+                <p style="font-family:'Sora', sans-serif;color:white;margin:0.5rem 0 0;text-transform:uppercase;letter-spacing:0.15em;font-size:0.8rem;font-weight:600;">Mi 11 Ideal | Formación ${this.currentFormation}</p>
             `;
 
             const footerBrand = documentObject.createElement('div');
