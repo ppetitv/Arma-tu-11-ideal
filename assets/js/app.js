@@ -816,24 +816,66 @@
             this.pitchSection.appendChild(frame);
 
             try {
+                await this.preloadExportFlags();
+                await new Promise((resolve) => windowObject.requestAnimationFrame(() => resolve()));
+
                 const canvas = await windowObject.html2canvas(this.pitchSection, {
                     backgroundColor: '#1A4D2E',
                     scale: 2,
                     useCORS: true,
                     logging: false,
+                    onclone: (clonedDocument) => {
+                        clonedDocument.querySelectorAll(
+                            '.filled-info__flag img, .summary-item__flag img, .sheet-team-flag img'
+                        ).forEach((imageNode) => {
+                            const exportSrc = this.getExportFlagSrc(imageNode.getAttribute('src'));
+                            imageNode.setAttribute('src', exportSrc);
+                            imageNode.setAttribute('loading', 'eager');
+                        });
+
+                        const statusPill = clonedDocument.getElementById('statusPill');
+                        if (statusPill) statusPill.remove();
+
+                        const slotBubble = clonedDocument.getElementById('slotBubble');
+                        if (slotBubble) slotBubble.remove();
+
+                        const toast = clonedDocument.getElementById('toast');
+                        if (toast) toast.remove();
+                    },
                 });
 
                 const link = documentObject.createElement('a');
-                link.download = 'mi-xi-ideal-mundial-2026.png';
+                link.download = 'mi-11-ideal-mundial-2026.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 this.showToast('Imagen guardada en tu dispositivo');
             } catch (error) {
-                this.showToast('Hubo un error al generar la imagen');
+                console.error('Error al generar la imagen del 11 ideal:', error);
+                this.showToast('No se pudo generar la imagen. Prueba desde un servidor local.');
             } finally {
                 this.pitchSection.removeChild(frame);
                 actions.style.display = originalDisplay;
             }
+        }
+
+        getExportFlagSrc(src) {
+            if (!src) return '';
+            return src.replace('/flags/', '/flags/png/').replace(/\.svg(\?.*)?$/, '.png');
+        }
+
+        async preloadExportFlags() {
+            const sources = new Set(
+                Object.values(this.selectedPlayers)
+                    .map((player) => this.getExportFlagSrc(player.flag))
+                    .filter(Boolean)
+            );
+
+            await Promise.all([...sources].map((src) => new Promise((resolve) => {
+                const image = new Image();
+                image.onload = () => resolve();
+                image.onerror = () => resolve();
+                image.src = src;
+            })));
         }
 
         createExportFrame() {
@@ -850,7 +892,7 @@
             const bottomBar = documentObject.createElement('div');
             bottomBar.style.cssText = 'padding:1rem 2rem 1.5rem;text-align:center;background:linear-gradient(to top, rgba(0,0,0,0.6), transparent);margin-top:auto;';
             bottomBar.innerHTML = `
-                <p style="font-family:'Sora', sans-serif;color:rgba(255,255,255,0.6);margin:0;text-transform:uppercase;letter-spacing:0.1em;font-size:0.7rem;">Creado con el Builder Oficial</p>
+                <p style="font-family:'Sora', sans-serif;color:rgba(255,255,255,0.6);margin:0;text-transform:uppercase;letter-spacing:0.1em;font-size:0.7rem;">Hecho por RPP para la hinchada</p>
             `;
 
             frame.append(topBar, bottomBar);
