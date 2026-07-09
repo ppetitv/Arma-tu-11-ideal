@@ -293,7 +293,6 @@
             this.selectorPanel.classList.add('open');
             this.backdrop.classList.add('show');
             documentObject.body.classList.add('sheet-open');
-            windowObject.setTimeout(() => this.searchInput.focus(), 300);
         }
 
         closePanel() {
