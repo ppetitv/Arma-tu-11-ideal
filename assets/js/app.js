@@ -749,6 +749,10 @@
             this.pitchMenu.classList.toggle('open', shouldOpen);
             this.pitchMenuToggle.setAttribute('aria-expanded', String(shouldOpen));
             this.pitchMenuPanel.hidden = !shouldOpen;
+
+            if (this.pitchSection) {
+                this.pitchSection.classList.toggle('menu-open', shouldOpen);
+            }
         }
 
         closePitchMenu() {
@@ -757,6 +761,10 @@
             this.pitchMenu.classList.remove('open');
             this.pitchMenuToggle.setAttribute('aria-expanded', 'false');
             this.pitchMenuPanel.hidden = true;
+
+            if (this.pitchSection) {
+                this.pitchSection.classList.remove('menu-open');
+            }
         }
 
         buildSummaryMarkup() {
@@ -1059,6 +1067,11 @@
 
                         const toast = clonedDocument.getElementById('toast');
                         if (toast) toast.remove();
+
+                        if (!this.isDesktop()) {
+                            const pitchHeader = clonedDocument.querySelector('.pitch-header');
+                            if (pitchHeader) pitchHeader.style.display = 'none';
+                        }
                     },
                 });
 
