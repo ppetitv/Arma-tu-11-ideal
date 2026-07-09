@@ -62,6 +62,9 @@
 
             <div class="celebration-text" aria-hidden="true">Tu 11 Ideal Completado</div>
             <div class="formation-grid" id="formationGrid" role="group" aria-label="Alineacion de jugadores"></div>
+            <div class="slot-bubble" id="slotBubble" aria-hidden="true">
+                <span id="slotBubbleText">Jugador al 11</span>
+            </div>
 
             <div class="completion-actions" id="completionActions" role="toolbar" aria-label="Acciones finales">
                 <button class="action-btn primary" id="floatSaveBtn" aria-label="Guardar imagen de tu equipo">
@@ -91,7 +94,7 @@
                     <div class="sheet-title" id="sheetTitle">Seleccionar Jugador</div>
                     <div class="sheet-subtitle" id="sheetSubtitle">Elige de la lista</div>
                 </div>
-                <button class="sheet-close" id="sheetClose" aria-label="Cerrar panel de seleccion">
+                <button class="sheet-close" id="sheetClose" aria-label="Cancelar seleccion actual" title="Cancelar seleccion">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
@@ -123,7 +126,7 @@
     <div class="toast" id="toast" role="status" aria-live="polite">
         <div class="toast__content">
             <span class="toast__dot" aria-hidden="true"></span>
-            <span id="toastText">Jugador anadido al XI</span>
+            <span id="toastText">Jugador anadido al 11</span>
         </div>
         <button class="toast__undo" id="toastUndo" style="display: none;" aria-label="Deshacer ultima accion">Deshacer</button>
     </div>

@@ -24,6 +24,8 @@
             this.searchTerm = '';
             this.lastRemoved = null;
             this.toastTimeout = null;
+            this.slotBubbleTimeout = null;
+            this.slotBubbleSlotId = null;
             this.hasSessionStarted = false;
 
             this.cacheElements();
@@ -47,9 +49,12 @@
             this.tabsWrapper = documentObject.getElementById('tabsWrapper');
             this.sheetTeamTabs = documentObject.getElementById('sheetTeamTabs');
             this.formationSelector = documentObject.getElementById('formationSelector');
+            this.slotBubble = documentObject.getElementById('slotBubble');
+            this.slotBubbleText = documentObject.getElementById('slotBubbleText');
             this.toast = documentObject.getElementById('toast');
             this.toastText = documentObject.getElementById('toastText');
             this.toastUndo = documentObject.getElementById('toastUndo');
+            this.sheetCloseButton = documentObject.getElementById('sheetClose');
         }
 
         init() {
@@ -58,6 +63,7 @@
             this.checkCompletion();
             this.triggerInitialHint();
             this.initPanel();
+            this.updateFieldAnchors();
         }
 
         bindEvents() {
@@ -84,7 +90,7 @@
                 }
             });
 
-            documentObject.getElementById('sheetClose').addEventListener('click', () => this.closePanel());
+            this.sheetCloseButton.addEventListener('click', () => this.closePanel());
             this.backdrop.addEventListener('click', () => this.closePanel());
             documentObject.getElementById('floatSaveBtn').addEventListener('click', () => this.downloadXI());
             documentObject.getElementById('floatShareBtn').addEventListener('click', () => this.shareXI());
@@ -141,6 +147,8 @@
             });
 
             this.toastUndo.addEventListener('click', () => this.restoreLastRemoved());
+            windowObject.addEventListener('resize', () => this.updateFieldAnchors());
+            windowObject.addEventListener('scroll', () => this.updateFieldAnchors(), { passive: true });
         }
 
         isDesktop() {
@@ -227,7 +235,9 @@
                         <div class="filled-avatar" style="background:${player.color}" aria-hidden="true">${player.number}</div>
                         <div class="filled-info" aria-hidden="true">
                             <div class="filled-info__main">
-                                <span class="filled-info__flag" style="background:${player.flag}"></span>
+                                <span class="filled-info__flag" aria-hidden="true">
+                                    <img src="${player.flag}" alt="" loading="lazy">
+                                </span>
                                 <span class="filled-info__name">${player.name}</span>
                             </div>
                             <span class="filled-info__pos">${player.pos}</span>
@@ -299,11 +309,16 @@
             this.searchInput.value = '';
             this.searchTerm = '';
             this.clearSlotStates();
+
+            if (this.isDesktop()) {
+                this.openPicker();
+            }
         }
 
         openPicker() {
             this.pickerView.classList.remove('hidden');
             this.summaryView.classList.remove('active');
+            this.updateCloseButton();
 
             if (this.activePos) {
                 this.sheetTitle.textContent = `Elegir ${this.config.positionNames[this.activePos]}`;
@@ -342,7 +357,9 @@
                     const isActive = teamName === this.currentSheetTeam;
                     return `
                         <button class="sheet-team-tab ${isActive ? 'active' : ''}" data-team="${teamName}" role="tab" aria-selected="${String(isActive)}" aria-label="Seleccionar pais ${teamName}">
-                            <span class="sheet-team-flag" style="background:${this.teams[teamName].flag}" aria-hidden="true"></span>
+                            <span class="sheet-team-flag" aria-hidden="true">
+                                <img src="${this.teams[teamName].flag}" alt="" loading="lazy">
+                            </span>
                             <span>${teamName}</span>
                         </button>
                     `;
@@ -359,7 +376,7 @@
 
         renderSheetContentShell() {
             const removeButton = this.activeCurrentPlayer
-                ? `<button class="remove-btn" id="removePlayerBtn" aria-label="Quitar a ${this.activeCurrentPlayer.name} del equipo">Quitar a ${this.activeCurrentPlayer.name} del XI</button>`
+                ? `<button class="remove-btn" id="removePlayerBtn" aria-label="Quitar a ${this.activeCurrentPlayer.name} del equipo">Quitar a ${this.activeCurrentPlayer.name} del 11</button>`
                 : '';
 
             this.sheetContent.innerHTML = `${removeButton}<div class="sheet-player-list" id="sheetPlayerList"></div>`;
@@ -417,7 +434,7 @@
 
         buildPlayerListMarkup(players) {
             if (!this.activePos && this.isDesktop()) {
-                return '<div class="sheet-empty-state sheet-empty-state--desktop">Toca un puesto vacio en el campo para empezar a construir tu XI.</div>';
+                return '<div class="sheet-empty-state sheet-empty-state--desktop">Toca un puesto vacio en el campo para empezar a construir tu 11.</div>';
             }
 
             if (players.length === 0) {
@@ -504,7 +521,8 @@
         openSummary() {
             this.pickerView.classList.add('hidden');
             this.summaryView.classList.add('active');
-            this.sheetTitle.textContent = 'XI Ideal Completado';
+            this.updateCloseButton();
+            this.sheetTitle.textContent = '11 Ideal Completado';
             this.sheetSubtitle.textContent = 'Tu alineacion final';
             this.summaryContent.innerHTML = this.buildSummaryMarkup();
             this.summaryActions.innerHTML = `
@@ -526,6 +544,17 @@
             this.openPanel();
         }
 
+        updateCloseButton() {
+            if (!this.sheetCloseButton) return;
+
+            const hasActiveSelection = Boolean(this.activePos || this.activeCurrentPlayer);
+            const isSummaryVisible = this.summaryView.classList.contains('active');
+            const label = isSummaryVisible ? 'Volver al selector' : hasActiveSelection ? 'Cancelar seleccion actual' : 'Cerrar selector';
+
+            this.sheetCloseButton.setAttribute('aria-label', label);
+            this.sheetCloseButton.setAttribute('title', label);
+        }
+
         buildSummaryMarkup() {
             return this.formations[this.currentFormation].map((row) => `
                 <div class="summary-group" role="list" aria-label="${this.config.summaryTitles[row.pos]}">
@@ -540,7 +569,9 @@
                                     <span class="summary-item__name">${player.name}</span>
                                     <span class="summary-item__team">${player.teamName}</span>
                                 </div>
-                                <span class="summary-item__flag" style="background:${player.flag}" aria-hidden="true"></span>
+                                <span class="summary-item__flag" aria-hidden="true">
+                                    <img src="${player.flag}" alt="" loading="lazy">
+                                </span>
                             </div>
                         `;
                     }).join('')}
@@ -550,6 +581,10 @@
 
         countSelectedPlayers() {
             return Object.keys(this.selectedPlayers).length;
+        }
+
+        syncPitchStageUI(count) {
+            this.pitchSection.classList.toggle('has-picked', count > 0 || this.hasSessionStarted);
         }
 
         getStatusMessage(count) {
@@ -569,8 +604,10 @@
             const wasComplete = this.pitchSection.classList.contains('complete');
             const isComplete = count === 11;
 
+            this.syncPitchStageUI(count);
+
             if (isComplete) {
-                this.statusText.textContent = 'XI Ideal Completado';
+                this.statusText.textContent = '11 Ideal Completado';
                 this.pitchSection.classList.add('complete');
 
                 if (!wasComplete) {
@@ -597,10 +634,17 @@
         launchConfetti() {
             if (typeof windowObject.confetti === 'undefined') return;
             try {
+                const rect = this.pitchSection.getBoundingClientRect();
+                const originX = (rect.left + (rect.width / 2)) / windowObject.innerWidth;
+                const originY = (rect.top + (rect.height * 0.58)) / windowObject.innerHeight;
+
                 windowObject.confetti({
                     particleCount: 120,
                     spread: 70,
-                    origin: { y: 0.6 },
+                    origin: {
+                        x: Math.min(Math.max(originX, 0.1), 0.9),
+                        y: Math.min(Math.max(originY, 0.1), 0.9),
+                    },
                     colors: ['#D4AF37', '#FFD700', '#FFEC8B', '#FFFFFF'],
                 });
             } catch (error) {}
@@ -611,13 +655,17 @@
             if (benchIndex !== -1) this.benchPlayers.splice(benchIndex, 1);
 
             this.selectedPlayers[slotId] = player;
+            if (this.activeSlotId === slotId) {
+                this.activeCurrentPlayer = player;
+            }
             this.hasSessionStarted = true;
             this.lastRemoved = null;
             this.toastUndo.style.display = 'none';
 
             this.renderPitch();
             this.checkCompletion();
-            this.showToast(`${player.name} en el XI`);
+            this.refreshPickerState();
+            this.showSlotBubble(slotId, `${player.name}, adentro`);
         }
 
         removePlayerFromSlot(slotId, showUndo = false) {
@@ -626,26 +674,97 @@
 
             this.lastRemoved = { player, slotId };
             delete this.selectedPlayers[slotId];
+            if (this.activeSlotId === slotId) {
+                this.activeCurrentPlayer = null;
+            }
 
             this.renderPitch();
             this.checkCompletion();
-            if (showUndo) this.showToast(`${player.name} removido`, true);
+            this.refreshPickerState();
+            if (showUndo) this.showToast(`${player.name}, afuera`, true);
         }
 
         restoreLastRemoved() {
             if (!this.lastRemoved) return;
 
-            this.selectedPlayers[this.lastRemoved.slotId] = this.lastRemoved.player;
+            const restoredSlotId = this.lastRemoved.slotId;
+            this.selectedPlayers[restoredSlotId] = this.lastRemoved.player;
             this.hasSessionStarted = true;
             const restoredPlayer = this.lastRemoved.player;
             this.lastRemoved = null;
+            if (this.activeSlotId === restoredSlotId) {
+                this.activeCurrentPlayer = restoredPlayer;
+            }
             this.renderPitch();
             this.checkCompletion();
+            this.refreshPickerState();
             this.toast.classList.remove('show');
-            this.showToast(`${restoredPlayer.name} restaurado`);
+            this.showSlotBubble(restoredSlotId, `${restoredPlayer.name}, de vuelta`);
+        }
+
+        refreshPickerState() {
+            if (!this.pickerView || this.pickerView.classList.contains('hidden')) return;
+
+            this.renderSheetContentShell();
+            this.renderSheetPlayers();
+        }
+
+        showSlotBubble(slotId, message) {
+            if (!slotId || !this.slotBubble || !this.slotBubbleText) {
+                this.showToast(message);
+                return;
+            }
+
+            const slot = this.pitchGrid.querySelector(`[data-slot-id="${slotId}"]`);
+            if (!slot) {
+                this.showToast(message);
+                return;
+            }
+
+            this.slotBubbleSlotId = slotId;
+            this.slotBubbleText.textContent = message;
+            this.slotBubble.classList.remove('show');
+            this.positionSlotBubble(slot);
+
+            windowObject.requestAnimationFrame(() => {
+                this.slotBubble.classList.add('show');
+            });
+
+            windowObject.clearTimeout(this.slotBubbleTimeout);
+            this.slotBubbleTimeout = windowObject.setTimeout(() => {
+                this.hideSlotBubble();
+            }, 1850);
+        }
+
+        positionSlotBubble(slot) {
+            if (!this.slotBubble || !this.pitchSection || !slot) return;
+
+            const pitchRect = this.pitchSection.getBoundingClientRect();
+            const slotRect = slot.getBoundingClientRect();
+            const bubbleRect = this.slotBubble.getBoundingClientRect();
+            const bubbleWidth = bubbleRect.width || 180;
+            const bubbleHeight = bubbleRect.height || 48;
+
+            const idealLeft = (slotRect.left - pitchRect.left) + (slotRect.width / 2) - (bubbleWidth / 2);
+            const clampedLeft = Math.min(
+                Math.max(idealLeft, 14),
+                pitchRect.width - bubbleWidth - 14
+            );
+
+            const top = Math.max((slotRect.top - pitchRect.top) - bubbleHeight - 12, 14);
+
+            this.slotBubble.style.left = `${clampedLeft}px`;
+            this.slotBubble.style.top = `${top}px`;
+        }
+
+        hideSlotBubble() {
+            if (!this.slotBubble) return;
+            this.slotBubble.classList.remove('show');
+            this.slotBubbleSlotId = null;
         }
 
         showToast(message, showUndo = false) {
+            this.updateFieldAnchors();
             this.toastText.textContent = message;
             this.toast.classList.add('show');
             this.toastUndo.style.display = showUndo && this.lastRemoved ? 'block' : 'none';
@@ -654,6 +773,31 @@
             this.toastTimeout = windowObject.setTimeout(() => {
                 this.toast.classList.remove('show');
             }, 4000);
+        }
+
+        updateFieldAnchors() {
+            if (!this.toast || !this.pitchSection) return;
+
+            if (!this.isDesktop()) {
+                this.toast.classList.remove('toast--pitch-aligned');
+                this.toast.style.left = '';
+                this.toast.style.right = '';
+                this.toast.style.bottom = '';
+                return;
+            }
+
+            const rect = this.pitchSection.getBoundingClientRect();
+            const bottomOffset = Math.max(windowObject.innerHeight - rect.bottom + 24, 24);
+
+            this.toast.classList.add('toast--pitch-aligned');
+            this.toast.style.left = `${rect.left + (rect.width / 2)}px`;
+            this.toast.style.right = 'auto';
+            this.toast.style.bottom = `${bottomOffset}px`;
+
+            if (this.slotBubbleSlotId) {
+                const slot = this.pitchGrid.querySelector(`[data-slot-id="${this.slotBubbleSlotId}"]`);
+                if (slot) this.positionSlotBubble(slot);
+            }
         }
 
         async downloadXI() {
@@ -700,7 +844,7 @@
             topBar.style.cssText = 'padding:2rem 2rem 1rem;text-align:center;background:linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);';
             topBar.innerHTML = `
                 <h2 style="font-family:'Barlow Condensed', sans-serif;font-size:2rem;margin:0;color:#FFD700;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;">Mundial 2026</h2>
-                <p style="font-family:'Sora', sans-serif;color:white;margin:0.5rem 0 0;text-transform:uppercase;letter-spacing:0.15em;font-size:0.8rem;font-weight:600;">Mi XI Ideal | Formacion ${this.currentFormation}</p>
+                <p style="font-family:'Sora', sans-serif;color:white;margin:0.5rem 0 0;text-transform:uppercase;letter-spacing:0.15em;font-size:0.8rem;font-weight:600;">Mi 11 Ideal | Formacion ${this.currentFormation}</p>
             `;
 
             const bottomBar = documentObject.createElement('div');
