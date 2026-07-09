@@ -1245,10 +1245,15 @@ body {
     scrollbar-width: none;
     scroll-behavior: smooth;
     scroll-snap-type: x proximity;
+    cursor: grab;
     position: relative;
     z-index: 2;
 }
 
+        .sheet-team-tabs.is-dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
 .sheet-team-tabs::-webkit-scrollbar {
     display: none;
 }

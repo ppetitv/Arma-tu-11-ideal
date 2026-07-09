@@ -30,6 +30,7 @@
             this._canLeft = null;
             this._canRight = null;
             this._tabsRaf = null;
+            this._tabsDrag = { active: false, moved: false, startX: 0, startScroll: 0 };
 
             this.cacheElements();
             this.init();
@@ -118,6 +119,10 @@
             });
 
             this.sheetTeamTabs.addEventListener('click', (event) => {
+                if (this._tabsDrag && this._tabsDrag.moved) {
+                    this._tabsDrag.moved = false;
+                    return;
+                }
                 const tab = event.target.closest('.sheet-team-tab');
                 if (!tab) return;
                 this.currentSheetTeam = tab.dataset.team;
@@ -163,6 +168,57 @@
                     : Math.max(currentIndex - 1, 0);
                 tabs[nextIndex].focus();
                 tabs[nextIndex].click();
+            });
+
+            this.sheetTeamTabs.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'touch') return;
+                this._tabsDrag.active = true;
+                this._tabsDrag.moved = false;
+                this._tabsDrag.startX = event.clientX;
+                this._tabsDrag.startScroll = this.sheetTeamTabs.scrollLeft;
+                this.sheetTeamTabs.classList.add('is-dragging');
+            });
+
+            this.sheetTeamTabs.addEventListener('pointermove', (event) => {
+                if (!this._tabsDrag.active) return;
+                const delta = this._tabsDrag.startX - event.clientX;
+                if (Math.abs(delta) > 5) this._tabsDrag.moved = true;
+                this.sheetTeamTabs.scrollLeft = this._tabsDrag.startScroll + delta;
+            });
+
+            const endTabsDrag = () => {
+                if (!this._tabsDrag.active) return;
+                this._tabsDrag.active = false;
+                this.sheetTeamTabs.classList.remove('is-dragging');
+            };
+
+            windowObject.addEventListener('pointerup', endTabsDrag);
+            windowObject.addEventListener('pointercancel', endTabsDrag);
+
+            [this.tabsPrev, this.tabsNext].forEach((button) => {
+                if (!button) return;
+                const direction = button === this.tabsPrev ? -1 : 1;
+                let holdTimer = null;
+                let holdInterval = null;
+                const startHold = () => {
+                    if (button.disabled) return;
+                    holdTimer = windowObject.setTimeout(() => {
+                        holdInterval = windowObject.setInterval(() => this.scrollTabsBy(direction), 120);
+                    }, 350);
+                };
+                const stopHold = () => {
+                    windowObject.clearTimeout(holdTimer);
+                    windowObject.clearInterval(holdInterval);
+                    holdTimer = null;
+                    holdInterval = null;
+                };
+                button.addEventListener('pointerdown', (event) => {
+                    event.preventDefault();
+                    startHold();
+                });
+                button.addEventListener('pointerup', stopHold);
+                button.addEventListener('pointerleave', stopHold);
+                button.addEventListener('pointercancel', stopHold);
             });
 
             this.sheetContent.addEventListener('click', (event) => {
