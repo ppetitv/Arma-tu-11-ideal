@@ -1,6 +1,5 @@
 (function attachDreamTeamData(windowObject) {
     windowObject.DreamTeamData = {
-        storageKey: 'xi_ideal_2026',
         defaultFormation: '4-3-3',
         positionNames: {
             GK: 'Portero',

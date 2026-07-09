@@ -15,9 +15,10 @@
     --color-accent: #0f1115;
     --color-pitch: #1a4d2e;
     --color-pitch-light: #2d6a4f;
-    --color-tech: #7df0bf;
-    --color-tech-soft: rgba(125, 240, 191, 0.18);
-    --color-tech-line: rgba(125, 240, 191, 0.28);
+    --color-tech: #97ff65;
+    --color-tech-soft: rgba(151, 255, 101, 0.16);
+    --color-tech-line: rgba(151, 255, 101, 0.32);
+    --color-tech-deep: #c9ffb2;
     --color-gold: #d4af37;
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -30,7 +31,7 @@
     --transition-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: 500ms cubic-bezier(0.32, 0.72, 0, 1);
     --font-ui: 'Sora', sans-serif;
-    --font-serif: 'Instrument Serif', serif;
+    --font-display: 'Barlow Condensed', sans-serif;
 }
 
 * {
@@ -52,7 +53,9 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--color-bg);
+    background:
+        radial-gradient(circle at top left, rgba(151, 255, 101, 0.06), transparent 18%),
+        linear-gradient(180deg, #0b0f12 0%, #0f1115 100%);
 }
 
 .seo-intro {
@@ -72,7 +75,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--color-bg);
+    background: transparent;
 }
 
 @media (min-width: 1024px) {
@@ -82,6 +85,8 @@ body {
         gap: 2rem;
         justify-content: center;
         align-items: stretch;
+        height: 100vh;
+        min-height: 0;
     }
 }
 
@@ -89,8 +94,8 @@ body {
     position: relative;
     background: var(--color-pitch);
     background-image:
-        radial-gradient(circle at 50% 46%, rgba(58, 117, 86, 0.92) 0%, rgba(26, 77, 46, 0.98) 54%, #143826 100%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.18));
+        radial-gradient(circle at 50% 46%, rgba(57, 112, 78, 0.9) 0%, rgba(17, 47, 31, 0.98) 54%, #091a12 100%),
+        linear-gradient(180deg, rgba(151, 255, 101, 0.03), rgba(0, 0, 0, 0.24));
     width: 100%;
     height: 100%;
     display: flex;
@@ -116,9 +121,10 @@ body {
 
 .pitch-section::before {
     background:
-        linear-gradient(90deg, transparent 0, transparent calc(50% - 240px), rgba(255, 255, 255, 0.03) calc(50% - 240px), rgba(255, 255, 255, 0.03) calc(50% - 239px), transparent calc(50% - 239px)),
-        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.028) 0 1px, transparent 1px 56px);
-    opacity: 0.55;
+        linear-gradient(90deg, transparent 0, transparent calc(50% - 240px), rgba(255, 255, 255, 0.04) calc(50% - 240px), rgba(255, 255, 255, 0.04) calc(50% - 239px), transparent calc(50% - 239px)),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 56px),
+        repeating-linear-gradient(90deg, rgba(151, 255, 101, 0.02) 0 1px, transparent 1px 84px);
+    opacity: 0.75;
     z-index: 1;
 }
 
@@ -126,17 +132,18 @@ body {
     inset: 1px;
     border-radius: inherit;
     background:
-        radial-gradient(circle at top right, rgba(125, 240, 191, 0.12), transparent 24%),
-        radial-gradient(circle at bottom left, rgba(255, 215, 0, 0.08), transparent 20%);
+        linear-gradient(135deg, rgba(151, 255, 101, 0.08), transparent 22%),
+        radial-gradient(circle at top right, rgba(151, 255, 101, 0.1), transparent 22%),
+        radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.04), transparent 20%);
     z-index: 1;
 }
 
 @media (min-width: 1024px) {
     .pitch-section {
-        height: auto;
+        height: calc(100vh - 4rem);
         max-width: 1100px;
         border-radius: 24px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 28px 64px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(151, 255, 101, 0.08);
     }
 }
 
@@ -148,7 +155,7 @@ body {
 
 .pitch-section.complete {
     background-image:
-        radial-gradient(circle at 50% 46%, rgba(58, 117, 86, 0.96) 0%, rgba(26, 77, 46, 0.98) 54%, #143826 100%),
+        radial-gradient(circle at 50% 46%, rgba(61, 123, 84, 0.96) 0%, rgba(17, 47, 31, 0.98) 54%, #091a12 100%),
         conic-gradient(from var(--angle), transparent 0%, #ffd700 20%, transparent 40%, transparent 100%);
     background-origin: border-box;
     background-clip: padding-box, border-box;
@@ -176,7 +183,7 @@ body {
     bottom: 0;
     left: 50%;
     width: 2px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02));
+    background: linear-gradient(180deg, rgba(151, 255, 101, 0.04), rgba(255, 255, 255, 0.14), rgba(151, 255, 101, 0.04));
 }
 
 .pitch-lines::after {
@@ -188,7 +195,7 @@ body {
     width: 140px;
     height: 140px;
     border: 2px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 14px rgba(255, 255, 255, 0.015);
+    box-shadow: 0 0 0 14px rgba(151, 255, 101, 0.018);
     border-radius: 50%;
 }
 
@@ -213,60 +220,62 @@ body {
 
 .pitch-header {
     position: absolute;
-    top: 2rem;
-    left: 2rem;
+    top: 1.75rem;
+    left: 1.75rem;
     color: rgba(255, 255, 255, 0.92);
     z-index: 4;
-    max-width: 320px;
-    padding: 1rem 1rem 1rem 1.1rem;
-    border-radius: 20px;
-    background: linear-gradient(180deg, rgba(7, 17, 13, 0.48), rgba(7, 17, 13, 0.16));
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    max-width: 312px;
+    padding: 0.78rem 0.9rem 0.82rem 0.98rem;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(5, 10, 8, 0.48), rgba(5, 10, 8, 0.12));
+    border: 1px solid rgba(151, 255, 101, 0.12);
     backdrop-filter: blur(14px);
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
 }
 
 .pitch-header::before {
     content: '';
     position: absolute;
-    left: 0.9rem;
-    top: 0.9rem;
-    bottom: 0.9rem;
-    width: 2px;
+    left: 0.82rem;
+    top: 0.82rem;
+    bottom: 0.82rem;
+    width: 1.5px;
     border-radius: 999px;
-    background: linear-gradient(180deg, var(--color-tech), rgba(125, 240, 191, 0.1));
-    box-shadow: 0 0 18px rgba(125, 240, 191, 0.28);
+    background: linear-gradient(180deg, var(--color-tech), rgba(151, 255, 101, 0.08));
+    box-shadow: 0 0 14px rgba(151, 255, 101, 0.24);
 }
 
 .pitch-header__eyebrow {
-    font-size: 0.85rem;
+    font-size: 0.62rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
-    color: rgba(125, 240, 191, 0.88);
-    padding-left: 0.95rem;
+    letter-spacing: 0.24em;
+    color: rgba(151, 255, 101, 0.8);
+    padding-left: 0.82rem;
 }
 
 .pitch-header h1 {
-    font-family: var(--font-serif);
-    font-size: clamp(2.2rem, 4vw, 3.65rem);
-    line-height: 0.92;
-    margin-top: 0.45rem;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.04em;
+    font-family: var(--font-display);
+    font-size: clamp(2.05rem, 3.7vw, 3.3rem);
+    line-height: 0.88;
+    margin-top: 0.28rem;
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: -0.015em;
     text-wrap: balance;
-    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
-    padding-left: 0.95rem;
+    text-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    padding-left: 0.82rem;
+    text-transform: uppercase;
+    max-width: 8ch;
 }
 
 .pitch-header__lede {
-    margin-top: 0.8rem;
-    max-width: 26ch;
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.72);
-    padding-left: 0.95rem;
+    margin-top: 0.58rem;
+    max-width: 25ch;
+    font-size: 0.76rem;
+    line-height: 1.42;
+    color: rgba(223, 235, 228, 0.64);
+    padding-left: 0.82rem;
 }
 
 .status-pill {
@@ -274,12 +283,12 @@ body {
     top: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(7, 15, 12, 0.46);
+    background: rgba(5, 10, 8, 0.54);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(151, 255, 101, 0.14);
     padding: 0.55rem 1.2rem;
     border-radius: 100px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(240, 255, 245, 0.92);
     font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -298,7 +307,7 @@ body {
     background: var(--color-tech);
     border-radius: 50%;
     transition: all var(--transition-fast);
-    box-shadow: 0 0 10px rgba(125, 240, 191, 0.65);
+    box-shadow: 0 0 12px rgba(151, 255, 101, 0.7);
 }
 
 .pitch-section.complete .status-pill {
@@ -317,17 +326,18 @@ body {
     top: 35%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: var(--font-serif);
-    font-size: 5.5rem;
+    font-family: var(--font-display);
+    font-size: 5.2rem;
     color: #ffd700;
     text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 40px rgba(212, 175, 55, 0.9), 0 0 60px rgba(212, 175, 55, 0.7), 0 4px 15px rgba(0, 0, 0, 0.9);
     opacity: 0;
     pointer-events: none;
     z-index: 30;
     white-space: nowrap;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
 }
 
 .pitch-section.celebrate .celebration-text {
@@ -403,16 +413,16 @@ body {
     height: 90px;
     border-radius: 50%;
     border: 1.5px dashed rgba(255, 255, 255, 0.22);
-    background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.05));
+    background: radial-gradient(circle at 50% 40%, rgba(151, 255, 101, 0.045), rgba(0, 0, 0, 0.05));
     justify-content: center;
     gap: 0.2rem;
 }
 
 .player-slot.empty:hover {
     border-color: var(--color-tech);
-    background: radial-gradient(circle at 50% 40%, rgba(125, 240, 191, 0.12), rgba(255, 255, 255, 0.04));
+    background: radial-gradient(circle at 50% 40%, rgba(151, 255, 101, 0.12), rgba(255, 255, 255, 0.04));
     transform: scale(1.05);
-    box-shadow: 0 0 0 8px rgba(125, 240, 191, 0.06);
+    box-shadow: 0 0 0 8px rgba(151, 255, 101, 0.06);
 }
 
 .player-slot.empty:active {
@@ -432,8 +442,8 @@ body {
 
 .player-slot.empty.is-selecting {
     border-color: var(--color-tech);
-    background: radial-gradient(circle at 50% 40%, rgba(125, 240, 191, 0.14), rgba(255, 255, 255, 0.05));
-    box-shadow: 0 0 22px rgba(125, 240, 191, 0.22);
+    background: radial-gradient(circle at 50% 40%, rgba(151, 255, 101, 0.14), rgba(255, 255, 255, 0.05));
+    box-shadow: 0 0 22px rgba(151, 255, 101, 0.22);
 }
 
 .player-slot.empty.hint {
@@ -448,7 +458,7 @@ body {
 
     50% {
         border-color: var(--color-tech);
-        box-shadow: 0 0 15px 2px rgba(125, 240, 191, 0.32);
+        box-shadow: 0 0 15px 2px rgba(151, 255, 101, 0.32);
     }
 
     100% {
@@ -502,7 +512,7 @@ body {
 
 .player-slot.filled:hover .filled-avatar {
     border-color: var(--color-tech);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4), 0 0 0 8px rgba(125, 240, 191, 0.06);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4), 0 0 0 8px rgba(151, 255, 101, 0.06);
 }
 
 .pitch-section.complete .filled-avatar {
@@ -539,8 +549,8 @@ body {
 
 .filled-info__name {
     color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
     max-width: 90px;
     white-space: nowrap;
@@ -550,11 +560,11 @@ body {
 }
 
 .filled-info__pos {
-    font-size: 0.55rem;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.53rem;
+    color: rgba(151, 255, 101, 0.8);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 500;
+    letter-spacing: 0.16em;
+    font-weight: 700;
 }
 
 .completion-actions {
@@ -562,9 +572,9 @@ body {
     bottom: 5.5rem;
     left: 50%;
     transform: translateX(-50%) translateY(30px);
-    background: rgba(9, 15, 14, 0.74);
+    background: rgba(5, 10, 8, 0.72);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(151, 255, 101, 0.14);
     border-radius: 18px;
     padding: 0.5rem;
     display: flex;
@@ -605,14 +615,14 @@ body {
 }
 
 .action-btn.primary {
-    background: var(--color-gold);
-    color: #1a4d2e;
+    background: linear-gradient(180deg, var(--color-tech), #7be94d);
+    color: #091a12;
 }
 
 .action-btn.primary:hover {
-    background: #e5c158;
+    background: linear-gradient(180deg, var(--color-tech-deep), var(--color-tech));
     transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+    box-shadow: 0 6px 18px rgba(151, 255, 101, 0.28);
 }
 
 .action-btn.danger:hover {
@@ -640,9 +650,9 @@ body {
     bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(7, 15, 12, 0.46);
+    background: rgba(5, 10, 8, 0.54);
     backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(151, 255, 101, 0.12);
     border-radius: 100px;
     padding: 0.35rem;
     display: flex;
@@ -661,7 +671,7 @@ body {
 .formation-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.68);
     padding: 0.55rem 1rem;
     border-radius: 100px;
     font-family: var(--font-ui);
@@ -678,9 +688,9 @@ body {
 }
 
 .formation-btn.active {
-    background: linear-gradient(180deg, rgba(125, 240, 191, 0.92), rgba(89, 220, 170, 0.92));
-    color: #072017;
-    box-shadow: 0 6px 18px rgba(125, 240, 191, 0.24);
+    background: linear-gradient(180deg, rgba(151, 255, 101, 0.98), rgba(120, 236, 70, 0.96));
+    color: #08170f;
+    box-shadow: 0 8px 20px rgba(151, 255, 101, 0.22);
 }
 
 .backdrop {
@@ -700,7 +710,7 @@ body {
 }
 
 .selector-panel {
-    background: linear-gradient(180deg, #ffffff 0%, #f5f7f7 100%);
+    background: linear-gradient(180deg, #fcfefd 0%, #f2f6f3 100%);
     z-index: 50;
     display: flex;
     flex-direction: column;
@@ -724,8 +734,8 @@ body {
     .selector-panel {
         position: relative;
         width: 420px;
-        height: auto;
-        max-height: none;
+        height: calc(100vh - 4rem);
+        max-height: calc(100vh - 4rem);
         border-radius: 24px;
         transform: none;
         transition: none;
@@ -767,10 +777,10 @@ body {
 }
 
 .sheet-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--color-text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.14em;
 }
 
 .sheet-close {
@@ -837,7 +847,7 @@ body {
 .search-input:focus {
     border-color: var(--color-accent);
     background: var(--color-surface);
-    box-shadow: 0 0 0 3px rgba(125, 240, 191, 0.15);
+    box-shadow: 0 0 0 3px rgba(151, 255, 101, 0.15);
 }
 
 .sheet-team-tabs-wrapper {
@@ -914,7 +924,7 @@ body {
     background: linear-gradient(180deg, #10181a, #0f1115);
     color: #ffffff;
     border-color: rgba(15, 17, 21, 0.9);
-    box-shadow: 0 8px 18px rgba(15, 17, 21, 0.18);
+    box-shadow: 0 8px 18px rgba(15, 17, 21, 0.18), inset 0 0 0 1px rgba(151, 255, 101, 0.12);
 }
 
 .sheet-team-flag,
@@ -1050,8 +1060,11 @@ body {
     color: var(--color-text-secondary);
     margin-bottom: 0.75rem;
     padding-left: 0.5rem;
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .summary-item {
@@ -1081,8 +1094,10 @@ body {
     font-weight: 700;
     font-size: 0.8rem;
     margin-right: 0.75rem;
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: -0.01em;
 }
 
 .summary-item__info {
@@ -1254,24 +1269,27 @@ body {
 
 @media (max-width: 768px) {
     .pitch-header {
-        top: 1.35rem;
-        left: 1.25rem;
-        max-width: 220px;
+        top: 1.15rem;
+        left: 1.05rem;
+        max-width: 196px;
+        padding: 0.68rem 0.72rem 0.72rem 0.82rem;
+        border-radius: 14px;
     }
 
     .pitch-header__eyebrow {
-        font-size: 0.75rem;
+        font-size: 0.56rem;
     }
 
     .pitch-header h1 {
-        font-size: 2rem;
+        font-size: 1.72rem;
     }
 
     .pitch-header__lede {
-        margin-top: 0.55rem;
-        font-size: 0.76rem;
-        max-width: 24ch;
+        margin-top: 0.45rem;
+        font-size: 0.68rem;
+        max-width: 22ch;
     }
+
 
     .formation-grid {
         height: 65vh;

@@ -24,6 +24,7 @@
             this.searchTerm = '';
             this.lastRemoved = null;
             this.toastTimeout = null;
+            this.hasSessionStarted = false;
 
             this.cacheElements();
             this.init();
@@ -52,7 +53,6 @@
         }
 
         init() {
-            this.loadState();
             this.renderPitch();
             this.bindEvents();
             this.checkCompletion();
@@ -153,29 +153,6 @@
             else this.openPicker();
         }
 
-        saveState() {
-            try {
-                windowObject.localStorage.setItem(this.config.storageKey, JSON.stringify({
-                    players: this.selectedPlayers,
-                    formation: this.currentFormation,
-                }));
-            } catch (error) {}
-        }
-
-        loadState() {
-            try {
-                const saved = windowObject.localStorage.getItem(this.config.storageKey);
-                if (!saved) return;
-
-                const parsed = JSON.parse(saved);
-                if (parsed && parsed.players && this.formations[parsed.formation]) {
-                    this.selectedPlayers = parsed.players;
-                    this.currentFormation = parsed.formation;
-                    this.syncFormationButtons();
-                }
-            } catch (error) {}
-        }
-
         vibrate(pattern) {
             try {
                 if (windowObject.navigator.vibrate) windowObject.navigator.vibrate(pattern);
@@ -217,7 +194,6 @@
 
             this.renderPitch(true);
             this.checkCompletion();
-            this.saveState();
 
             if (this.isDesktop() && this.summaryView.classList.contains('active')) {
                 this.openSummary();
@@ -576,6 +552,18 @@
             return Object.keys(this.selectedPlayers).length;
         }
 
+        getStatusMessage(count) {
+            if (count === 0) {
+                return 'Elige tu primer jugador';
+            }
+
+            if (!this.hasSessionStarted) {
+                return 'Sigue armando tu 11';
+            }
+
+            return `Faltan ${11 - count} jugadores`;
+        }
+
         checkCompletion() {
             const count = this.countSelectedPlayers();
             const wasComplete = this.pitchSection.classList.contains('complete');
@@ -597,15 +585,13 @@
                     this.openSummary();
                 }
             } else {
-                this.statusText.textContent = count === 0 ? 'Arma tu 11 Ideal' : `Faltan ${11 - count} jugadores`;
+                this.statusText.textContent = this.getStatusMessage(count);
                 this.pitchSection.classList.remove('complete');
 
                 if (this.isDesktop() && this.pickerView.classList.contains('hidden')) {
                     this.openPicker();
                 }
             }
-
-            this.saveState();
         }
 
         launchConfetti() {
@@ -625,6 +611,7 @@
             if (benchIndex !== -1) this.benchPlayers.splice(benchIndex, 1);
 
             this.selectedPlayers[slotId] = player;
+            this.hasSessionStarted = true;
             this.lastRemoved = null;
             this.toastUndo.style.display = 'none';
 
@@ -649,6 +636,7 @@
             if (!this.lastRemoved) return;
 
             this.selectedPlayers[this.lastRemoved.slotId] = this.lastRemoved.player;
+            this.hasSessionStarted = true;
             const restoredPlayer = this.lastRemoved.player;
             this.lastRemoved = null;
             this.renderPitch();
@@ -711,7 +699,7 @@
             const topBar = documentObject.createElement('div');
             topBar.style.cssText = 'padding:2rem 2rem 1rem;text-align:center;background:linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);';
             topBar.innerHTML = `
-                <h2 style="font-family:'Instrument Serif', serif;font-size:2rem;margin:0;color:#FFD700;font-style:italic;">Mundial 2026</h2>
+                <h2 style="font-family:'Barlow Condensed', sans-serif;font-size:2rem;margin:0;color:#FFD700;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;">Mundial 2026</h2>
                 <p style="font-family:'Sora', sans-serif;color:white;margin:0.5rem 0 0;text-transform:uppercase;letter-spacing:0.15em;font-size:0.8rem;font-weight:600;">Mi XI Ideal | Formacion ${this.currentFormation}</p>
             `;
 
@@ -742,6 +730,7 @@
             this.selectedPlayers = {};
             this.benchPlayers = [];
             this.currentFormation = this.defaultFormation;
+            this.hasSessionStarted = false;
             this.activeSlotId = null;
             this.activePos = null;
             this.activeCurrentPlayer = null;
