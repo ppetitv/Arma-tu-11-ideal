@@ -27,6 +27,9 @@
             this.slotBubbleTimeout = null;
             this.slotBubbleSlotId = null;
             this.hasSessionStarted = false;
+            this._canLeft = null;
+            this._canRight = null;
+            this._tabsRaf = null;
 
             this.cacheElements();
             this.init();
@@ -48,6 +51,8 @@
             this.searchInput = documentObject.getElementById('searchInput');
             this.tabsWrapper = documentObject.getElementById('tabsWrapper');
             this.sheetTeamTabs = documentObject.getElementById('sheetTeamTabs');
+            this.tabsPrev = documentObject.getElementById('tabsPrev');
+            this.tabsNext = documentObject.getElementById('tabsNext');
             this.formationSelector = documentObject.getElementById('formationSelector');
             this.slotBubble = documentObject.getElementById('slotBubble');
             this.slotBubbleText = documentObject.getElementById('slotBubbleText');
@@ -120,11 +125,45 @@
                 this.renderSheetPlayers();
             });
 
+            this.sheetTeamTabs.addEventListener('scroll', () => this.updateTabsOverflow(), { passive: true });
+
+            if (this.tabsPrev) {
+                this.tabsPrev.addEventListener('click', () => this.scrollTabsBy(-1));
+            }
+
+            if (this.tabsNext) {
+                this.tabsNext.addEventListener('click', () => this.scrollTabsBy(1));
+            }
+
             this.sheetTeamTabs.addEventListener('wheel', (event) => {
-                if (event.deltaY === 0) return;
-                event.preventDefault();
-                this.sheetTeamTabs.scrollLeft += event.deltaY;
+                const rawDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+                if (rawDelta === 0) return;
+                let delta = rawDelta;
+                if (event.deltaMode === 1) delta *= 16;
+                else if (event.deltaMode === 2) delta *= this.sheetTeamTabs.clientWidth;
+
+                const maxScroll = this.sheetTeamTabs.scrollWidth - this.sheetTeamTabs.clientWidth;
+                const atStart = this.sheetTeamTabs.scrollLeft <= 0;
+                const atEnd = this.sheetTeamTabs.scrollLeft >= maxScroll - 1;
+
+                if ((delta < 0 && !atStart) || (delta > 0 && !atEnd)) {
+                    event.preventDefault();
+                    this.sheetTeamTabs.scrollLeft += delta;
+                }
             }, { passive: false });
+
+            this.sheetTeamTabs.addEventListener('keydown', (event) => {
+                if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+                const tabs = Array.from(this.sheetTeamTabs.querySelectorAll('.sheet-team-tab'));
+                const currentIndex = tabs.indexOf(documentObject.activeElement);
+                if (currentIndex === -1) return;
+                event.preventDefault();
+                const nextIndex = event.key === 'ArrowRight'
+                    ? Math.min(currentIndex + 1, tabs.length - 1)
+                    : Math.max(currentIndex - 1, 0);
+                tabs[nextIndex].focus();
+                tabs[nextIndex].click();
+            });
 
             this.sheetContent.addEventListener('click', (event) => {
                 const removeButton = event.target.closest('#removePlayerBtn');
@@ -171,7 +210,10 @@
             documentObject.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape') this.closePitchMenu();
             });
-            windowObject.addEventListener('resize', () => this.updateFieldAnchors());
+            windowObject.addEventListener('resize', () => {
+                this.updateFieldAnchors();
+                this.updateTabsOverflow();
+            });
             windowObject.addEventListener('scroll', () => this.updateFieldAnchors(), { passive: true });
         }
 
@@ -256,7 +298,7 @@
             if (player) {
                 return `
                     <div class="player-slot filled" data-slot-id="${slotId}" data-pos="${row.pos}" role="button" tabindex="0" aria-label="Posición ${label}, actualmente ${player.name} de ${player.teamName}. Activa para editar." ${animationStyle}>
-                        <div class="filled-avatar" style="background:${player.color}" aria-hidden="true">${player.number}</div>
+                        <div class="filled-avatar" style="background:${player.color};color:${this.getContrastColor(player.color)};border-color:${this.getContrastColor(player.color)}" aria-hidden="true">${player.number}</div>
                         <div class="filled-info" aria-hidden="true">
                             <div class="filled-info__main">
                                 <span class="filled-info__flag" aria-hidden="true">
@@ -407,6 +449,45 @@
                         </button>
                     `;
                 }).join('');
+
+            this._canLeft = null;
+            this._canRight = null;
+            this.updateTabsOverflow();
+        }
+
+        updateTabsOverflow() {
+            if (!this.sheetTeamTabs || !this.tabsWrapper) return;
+            if (this._tabsRaf) return;
+            this._tabsRaf = windowObject.requestAnimationFrame(() => {
+                this._tabsRaf = null;
+                const maxScroll = this.sheetTeamTabs.scrollWidth - this.sheetTeamTabs.clientWidth;
+                const hasOverflow = maxScroll > 1;
+                const canLeft = hasOverflow && this.sheetTeamTabs.scrollLeft > 1;
+                const canRight = hasOverflow && this.sheetTeamTabs.scrollLeft < maxScroll - 1;
+
+                if (canLeft === this._canLeft && canRight === this._canRight) return;
+
+                this._canLeft = canLeft;
+                this._canRight = canRight;
+
+                this.tabsWrapper.classList.toggle('can-scroll-left', canLeft);
+                this.tabsWrapper.classList.toggle('can-scroll-right', canRight);
+
+                if (this.tabsPrev) {
+                    this.tabsPrev.hidden = !hasOverflow;
+                    this.tabsPrev.disabled = !canLeft;
+                }
+                if (this.tabsNext) {
+                    this.tabsNext.hidden = !hasOverflow;
+                    this.tabsNext.disabled = !canRight;
+                }
+            });
+        }
+
+        scrollTabsBy(direction) {
+            if (!this.sheetTeamTabs) return;
+            const amount = Math.max(this.sheetTeamTabs.clientWidth * 0.8, 180);
+            this.sheetTeamTabs.scrollBy({ left: direction * amount, behavior: 'smooth' });
         }
 
         syncTeamTabs() {
@@ -523,7 +604,7 @@
 
             return `
                 <div class="${classes}" data-player-id="${player.id}" data-team="${player.teamName}" role="listitem" tabindex="0" aria-label="${ariaLabel}" ${isInPitch && !isCurrent ? 'aria-disabled="true"' : ''}>
-                    <div class="player-card__img" style="background:${player.color}" aria-hidden="true">${player.number}</div>
+                    <div class="player-card__img" style="background:${player.color};color:${this.getContrastColor(player.color)}" aria-hidden="true">${player.number}</div>
                     <div class="player-card__info">
                         <span class="player-card__name">${player.name}</span>
                         <span class="player-card__meta">${player.teamName}</span>
@@ -631,7 +712,7 @@
                         if (!player) return '';
                         return `
                             <div class="summary-item" role="listitem" aria-label="${player.name}, ${player.teamName}">
-                                <div class="summary-item__number" style="background:${player.color}" aria-hidden="true">${player.number}</div>
+                                <div class="summary-item__number" style="background:${player.color};color:${this.getContrastColor(player.color)}" aria-hidden="true">${player.number}</div>
                                 <div class="summary-item__info">
                                     <span class="summary-item__name">${player.name}</span>
                                     <span class="summary-item__team">${player.teamName}</span>
@@ -947,6 +1028,17 @@
             return src.replace('/flags/', '/flags/png/').replace(/\.svg(\?.*)?$/, '.png');
         }
 
+        getContrastColor(hex) {
+            if (!hex) return '#0f1115';
+            let value = hex.replace('#', '');
+            if (value.length === 3) value = value.split('').map((char) => char + char).join('');
+            const red = parseInt(value.substring(0, 2), 16);
+            const green = parseInt(value.substring(2, 4), 16);
+            const blue = parseInt(value.substring(4, 6), 16);
+            const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+            return luminance > 0.6 ? '#0f1115' : '#ffffff';
+        }
+
         async preloadExportAssets() {
             const sources = new Set(
                 Object.values(this.selectedPlayers)
@@ -1030,6 +1122,7 @@
                 const tabWidth = activeTab.getBoundingClientRect().width;
                 const scrollPosition = activeTab.offsetLeft - (containerWidth / 2) + (tabWidth / 2);
                 this.sheetTeamTabs.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+                this.updateTabsOverflow();
             }, 100);
         }
     }

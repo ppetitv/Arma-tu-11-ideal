@@ -1215,9 +1215,16 @@ body {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 24px;
+    width: 40px;
     z-index: 2;
     pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.sheet-team-tabs-wrapper.can-scroll-left::before,
+.sheet-team-tabs-wrapper.can-scroll-right::after {
+    opacity: 1;
 }
 
 .sheet-team-tabs-wrapper::before {
@@ -1246,11 +1253,69 @@ body {
     display: none;
 }
 
+.sheet-tabs__nav {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 3;
+    width: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.sheet-tabs__nav[hidden] {
+    display: none;
+}
+
+.sheet-tabs__nav:disabled {
+    opacity: 0.35;
+    cursor: default;
+    background: var(--color-surface);
+}
+
+.sheet-tabs__nav:disabled:hover {
+    color: var(--color-text-secondary);
+    background: var(--color-surface);
+}
+
+.sheet-tabs__nav:hover {
+    color: var(--color-text-primary);
+    background: var(--color-surface-2);
+}
+
+.sheet-tabs__nav:focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: -2px;
+}
+
+.sheet-tabs__nav svg {
+    width: 18px;
+    height: 18px;
+}
+
+.sheet-tabs__nav--prev {
+    left: 0;
+    border-radius: 0 100px 100px 0;
+    background: linear-gradient(to right, var(--color-surface) 60%, transparent);
+}
+
+.sheet-tabs__nav--next {
+    right: 0;
+    border-radius: 100px 0 0 100px;
+    background: linear-gradient(to left, var(--color-surface) 60%, transparent);
+}
+
 .sheet-team-tab {
     flex-shrink: 0;
     padding: 0.65rem 1.2rem;
-    border: 1px solid transparent;
-    background: rgba(15, 17, 21, 0.04);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-2);
     border-radius: 100px;
     font-family: var(--font-ui);
     font-weight: 600;
@@ -1263,19 +1328,19 @@ body {
     gap: 0.5rem;
     scroll-snap-align: start;
     -webkit-tap-highlight-color: transparent;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
 }
 
 .sheet-team-tab:hover {
-    background: #f3f4f6;
+    background: #eef0f3;
     color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
 }
 
 .sheet-team-tab.active {
     background: linear-gradient(180deg, #10181a, #0f1115);
     color: #ffffff;
-    border-color: rgba(15, 17, 21, 0.9);
-    box-shadow: 0 8px 18px rgba(15, 17, 21, 0.18), inset 0 0 0 1px rgba(151, 255, 101, 0.12);
+    border-color: var(--color-tech);
+    box-shadow: 0 8px 18px rgba(15, 17, 21, 0.18), 0 0 0 2px rgba(151, 255, 101, 0.55);
 }
 
 .sheet-team-flag,
@@ -1356,6 +1421,7 @@ body {
     font-weight: 700;
     color: var(--color-surface);
     flex-shrink: 0;
+    border: 1px solid rgba(15, 17, 21, 0.12);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
