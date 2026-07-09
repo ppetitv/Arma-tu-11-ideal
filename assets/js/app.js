@@ -882,7 +882,23 @@
             const frame = this.createExportFrame();
             this.pitchSection.appendChild(frame);
 
+            const flagImages = Array.from(this.pitchSection.querySelectorAll('.filled-info__flag img'));
+            const originalSources = flagImages.map((image) => image.getAttribute('src'));
+            const loadFlags = flagImages.map((image) => new Promise((resolve) => {
+                const exportSrc = this.getExportFlagSrc(image.getAttribute('src'));
+                if (!exportSrc || image.getAttribute('src') === exportSrc) {
+                    resolve();
+                    return;
+                }
+                const done = () => resolve();
+                image.onload = done;
+                image.onerror = done;
+                image.src = exportSrc;
+                if (image.complete && image.naturalWidth > 0) done();
+            }));
+
             try {
+                await Promise.all(loadFlags);
                 await this.preloadExportAssets();
                 await new Promise((resolve) => windowObject.requestAnimationFrame(() => resolve()));
 
@@ -892,14 +908,6 @@
                     useCORS: true,
                     logging: false,
                     onclone: (clonedDocument) => {
-                        clonedDocument.querySelectorAll(
-                            '.filled-info__flag img, .summary-item__flag img, .sheet-team-flag img'
-                        ).forEach((imageNode) => {
-                            const exportSrc = this.getExportFlagSrc(imageNode.getAttribute('src'));
-                            imageNode.setAttribute('src', exportSrc);
-                            imageNode.setAttribute('loading', 'eager');
-                        });
-
                         const statusPill = clonedDocument.getElementById('statusPill');
                         if (statusPill) statusPill.remove();
 
@@ -926,6 +934,9 @@
                 console.error('Error al generar la imagen del 11 ideal:', error);
                 this.showToast('No se pudo generar la imagen. Prueba desde un servidor local.');
             } finally {
+                flagImages.forEach((image, index) => {
+                    if (originalSources[index] !== null) image.src = originalSources[index];
+                });
                 this.pitchSection.removeChild(frame);
                 actions.style.display = originalDisplay;
             }
