@@ -815,7 +815,7 @@
             this.pitchSection.appendChild(frame);
 
             try {
-                await this.preloadExportFlags();
+                await this.preloadExportAssets();
                 await new Promise((resolve) => windowObject.requestAnimationFrame(() => resolve()));
 
                 const canvas = await windowObject.html2canvas(this.pitchSection, {
@@ -834,6 +834,9 @@
 
                         const statusPill = clonedDocument.getElementById('statusPill');
                         if (statusPill) statusPill.remove();
+
+                        const pitchBrand = clonedDocument.getElementById('pitchBrand');
+                        if (pitchBrand) pitchBrand.remove();
 
                         const slotBubble = clonedDocument.getElementById('slotBubble');
                         if (slotBubble) slotBubble.remove();
@@ -862,12 +865,14 @@
             return src.replace('/flags/', '/flags/png/').replace(/\.svg(\?.*)?$/, '.png');
         }
 
-        async preloadExportFlags() {
+        async preloadExportAssets() {
             const sources = new Set(
                 Object.values(this.selectedPlayers)
                     .map((player) => this.getExportFlagSrc(player.flag))
                     .filter(Boolean)
             );
+
+            sources.add('assets/img/logo_rpp.png');
 
             await Promise.all([...sources].map((src) => new Promise((resolve) => {
                 const image = new Image();
@@ -888,13 +893,19 @@
                 <p style="font-family:'Sora', sans-serif;color:white;margin:0.5rem 0 0;text-transform:uppercase;letter-spacing:0.15em;font-size:0.8rem;font-weight:600;">Mi 11 Ideal | Formacion ${this.currentFormation}</p>
             `;
 
+            const footerBrand = documentObject.createElement('div');
+            footerBrand.style.cssText = 'margin-top:auto;display:flex;justify-content:center;align-items:center;padding:0 2rem 0.7rem;';
+            footerBrand.innerHTML = `
+                <img src="assets/img/logo_rpp.png" alt="RPP" style="width:58px;height:58px;display:block;object-fit:contain;border-radius:50%;box-shadow:0 10px 24px rgba(0,0,0,0.24);">
+            `;
+
             const bottomBar = documentObject.createElement('div');
-            bottomBar.style.cssText = 'padding:1rem 2rem 1.5rem;text-align:center;background:linear-gradient(to top, rgba(0,0,0,0.6), transparent);margin-top:auto;';
+            bottomBar.style.cssText = 'padding:0 2rem 1.5rem;text-align:center;background:linear-gradient(to top, rgba(0,0,0,0.6), transparent);';
             bottomBar.innerHTML = `
                 <p style="font-family:'Sora', sans-serif;color:rgba(255,255,255,0.6);margin:0;text-transform:uppercase;letter-spacing:0.1em;font-size:0.7rem;">Hecho por RPP para la hinchada</p>
             `;
 
-            frame.append(topBar, bottomBar);
+            frame.append(topBar, footerBrand, bottomBar);
             return frame;
         }
 

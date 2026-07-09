@@ -298,6 +298,36 @@ body {
         margin-top 220ms var(--transition-medium);
 }
 
+.pitch-brand {
+    position: absolute;
+    top: 1.55rem;
+    right: 1.55rem;
+    z-index: 5;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(5, 10, 8, 0.18);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+}
+
+.pitch-brand:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.26);
+}
+
+.pitch-brand img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
 .status-pill {
     position: absolute;
     top: 2rem;
@@ -457,6 +487,13 @@ body {
         background: linear-gradient(180deg, rgba(5, 10, 8, 0.38), rgba(5, 10, 8, 0.08));
     }
 
+    .pitch-brand {
+        top: 1.35rem;
+        right: 1.35rem;
+        width: 56px;
+        height: 56px;
+    }
+
     .pitch-header::before {
         left: 0.7rem;
         top: 0.72rem;
@@ -484,11 +521,16 @@ body {
     }
 }
 
-.pitch-section.has-picked .pitch-header {
-    background: linear-gradient(180deg, rgba(5, 10, 8, 0.28), rgba(5, 10, 8, 0.04));
-    border-color: rgba(151, 255, 101, 0.08);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-}
+    .pitch-section.has-picked .pitch-header {
+        background: linear-gradient(180deg, rgba(5, 10, 8, 0.28), rgba(5, 10, 8, 0.04));
+        border-color: rgba(151, 255, 101, 0.08);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    }
+
+    .pitch-section.has-picked .pitch-brand {
+        transform: scale(0.92);
+        opacity: 0.92;
+    }
 
 .pitch-section.has-picked .pitch-header__lede {
     opacity: 0;
@@ -1439,6 +1481,13 @@ body {
 
     .pitch-header__eyebrow {
         font-size: 0.54rem;
+    }
+
+    .pitch-brand {
+        top: 0.92rem;
+        right: 1rem;
+        width: 48px;
+        height: 48px;
     }
 
     .pitch-header h1 {
